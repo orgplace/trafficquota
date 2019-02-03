@@ -1,0 +1,8 @@
+#!/usr/local/bin/ready
+
+# This file is a script to check whether you are ready for development.
+# Please install https://github.com/utisam/ready
+
+check_command "dep"
+check_command "protoc"
+check_command "protoc-gen-gogoslick"

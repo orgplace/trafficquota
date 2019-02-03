@@ -1,20 +1,44 @@
 package main
 
 import (
-	"go.uber.org/zap"
-	"fmt"
 	"context"
+	"fmt"
 	"net"
+	"strings"
+	"time"
 
+	"go.uber.org/zap"
+
+	"github.com/orgplace/trafficquota/config"
 	"github.com/orgplace/trafficquota/proto"
+	"github.com/orgplace/trafficquota/tokenbucket"
 
 	"google.golang.org/grpc"
 )
 
+func newConnection(addr string) (*grpc.ClientConn, error) {
+	const unixSocketPrefix = "unix:"
+
+	if strings.HasPrefix(addr, unixSocketPrefix) {
+		socketFile := addr[len(unixSocketPrefix):]
+
+		return grpc.Dial(
+			socketFile,
+			grpc.WithInsecure(),
+			grpc.WithDialer(func(a string, t time.Duration) (net.Conn, error) {
+				return net.Dial("unix", a)
+			}),
+			// grpc.WithUnaryInterceptor(grpc_zap.UnaryClientInterceptor(logger)),
+		)
+	}
+
+	return grpc.Dial(addr, grpc.WithInsecure())
+}
+
 func main() {
 	logger, _ := zap.NewDevelopment()
 
-	conn, err := grpc.Dial(net.JoinHostPort("localhost", "3895"), grpc.WithInsecure())
+	conn, err := newConnection(config.Listen)
 	if err != nil {
 		logger.Panic("failed to dial", zap.Error(err))
 	}
@@ -22,13 +46,16 @@ func main() {
 
 	c := proto.NewTrafficQuotaServiceClient(conn)
 
-	res, err := c.TakeToken(context.Background(), &proto.TakeTokenRequest{
-		PartitionKey: "sample",
-		ClustringKey: []string{"test"},
-	})
-	if err != nil {
-		logger.Panic("failed to take token", zap.Error(err))
-	}
+	for i := 0; i < tokenbucket.DefaultBucketSize; i++ {
 
-	fmt.Printf("%#v", res)
+		res, err := c.TakeToken(context.Background(), &proto.TakeTokenRequest{
+			PartitionKey:  "sample",
+			ClusteringKey: []string{"test"},
+		})
+		if err != nil {
+			logger.Panic("failed to take token", zap.Error(err))
+		}
+
+		fmt.Printf("%v\n", res.Allowed)
+	}
 }

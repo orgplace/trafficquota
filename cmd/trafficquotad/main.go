@@ -4,7 +4,10 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
+
+	"github.com/orgplace/trafficquota/config"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
@@ -16,11 +19,28 @@ import (
 	"google.golang.org/grpc"
 )
 
+func newLogger() (*zap.Logger, error) {
+	var c zap.Config
+	if config.DevelopMode {
+		c = zap.NewDevelopmentConfig()
+	} else {
+		c = zap.NewProductionConfig()
+	}
+
+	c.Level = zap.NewAtomicLevelAt(config.LogLevel)
+
+	return c.Build()
+}
+
 func main() {
-	logger, _ := zap.NewDevelopment()
+	logger, err := newLogger()
+	if err != nil {
+		panic(err)
+	}
+
 	s := buildGRPCServer(logger)
 
-	if err := listenAndServe(logger, s, net.JoinHostPort("localhost", "3895")); err != nil {
+	if err := listenAndServe(logger, s, config.Listen); err != nil {
 		logger.Panic("failed to start the server", zap.Error(err))
 	}
 
@@ -38,7 +58,7 @@ func main() {
 func buildGRPCServer(logger *zap.Logger) *grpc.Server {
 	s := grpc.NewServer(buildGRPCServerOptions(logger)...)
 
-	proto.RegisterTrafficQuotaServiceServer(s, server.NewTrafficQuotaServer())
+	proto.RegisterTrafficQuotaServiceServer(s, server.NewTrafficQuotaServer(logger))
 
 	return s
 }
@@ -56,13 +76,32 @@ func buildGRPCServerOptions(logger *zap.Logger) []grpc.ServerOption {
 	}
 }
 
-func listenAndServe(logger *zap.Logger, s *grpc.Server, address string) error {
-	listener, err := net.Listen("tcp", address)
-	if err != nil {
-		return err
+func listenAndServe(logger *zap.Logger, s *grpc.Server, listen string) error {
+	const unixSocketPrefix = "unix:"
+
+	var listener net.Listener
+
+	if strings.HasPrefix(listen, unixSocketPrefix) {
+		socketFile := listen[len(unixSocketPrefix):]
+		os.Remove(socketFile)
+		l, err := net.Listen("unix", socketFile)
+		if err != nil {
+			return err
+		}
+		listener = l
+
+		if err := os.Chmod(socketFile, 0660); err != nil {
+			return err
+		}
+	} else {
+		l, err := net.Listen("tcp", listen)
+		if err != nil {
+			return err
+		}
+		listener = l
 	}
 
-	logger.Info("Starting the server", zap.String("address", address))
+	logger.Info("Starting the server", zap.String("listen", listen))
 
 	go func() {
 		if err := s.Serve(listener); err != nil {

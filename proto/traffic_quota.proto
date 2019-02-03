@@ -11,9 +11,9 @@ service TrafficQuotaService {
 
 message TakeTokenRequest {
     string partition_key = 1;
-    repeated string clustring_key = 2;
+    repeated string clustering_key = 2;
 }
 
 message TakeTokenResponse {
-    repeated bool allowed = 1;
+    bool allowed = 1;
 }

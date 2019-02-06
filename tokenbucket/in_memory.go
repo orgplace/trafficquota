@@ -69,6 +69,7 @@ func newBuckets() *buckets {
 }
 
 func (b *buckets) fill() {
+	n := int32(DefaultRate / int32(time.Second/DefaultInterval))
 	b.m.Range(func(key, value interface{}) bool {
 		p := value.(*int32)
 
@@ -79,7 +80,7 @@ func (b *buckets) fill() {
 		if atomic.LoadInt32(p) < 0 {
 			b.m.Delete(key)
 		} else {
-			atomic.AddInt32(p, -DefaultRate)
+			atomic.AddInt32(p, -n)
 		}
 
 		return false

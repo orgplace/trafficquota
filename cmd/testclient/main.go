@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"sort"
 	"strings"
 	"time"
 
@@ -36,7 +37,11 @@ func newConnection(addr string) (*grpc.ClientConn, error) {
 }
 
 func main() {
-	logger, _ := zap.NewDevelopment()
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		panic(err)
+	}
+	defer logger.Sync()
 
 	conn, err := newConnection(config.Listen)
 	if err != nil {
@@ -46,16 +51,52 @@ func main() {
 
 	c := proto.NewTrafficQuotaServiceClient(conn)
 
-	for i := 0; i < tokenbucket.DefaultBucketSize; i++ {
+	type result struct {
+		allowed  bool
+		duration time.Duration
+	}
+	n := tokenbucket.DefaultBucketSize * 5
+	results := make(chan *result, n)
+	for i := 0; i < n; i++ {
+		go func() {
+			t := time.Now()
+			res, err := c.Take(context.Background(), &proto.TakeRequest{
+				PartitionKey:  "sample",
+				ClusteringKey: []string{"test"},
+			})
+			d := time.Since(t)
+			if err != nil {
+				logger.Panic("failed to take token", zap.Error(err))
+			}
 
-		res, err := c.TakeToken(context.Background(), &proto.TakeTokenRequest{
-			PartitionKey:  "sample",
-			ClusteringKey: []string{"test"},
-		})
-		if err != nil {
-			logger.Panic("failed to take token", zap.Error(err))
+			results <- &result{
+				allowed:  res.Allowed,
+				duration: d,
+			}
+		}()
+	}
+
+	allow := 0
+	durations := make([]time.Duration, n)
+
+	for i := 0; i < n; i++ {
+		r := <-results
+		if r.allowed {
+			allow++
 		}
+		durations[i] = r.duration
+	}
 
-		fmt.Printf("%v\n", res.Allowed)
+	sort.Slice(durations, func(i, j int) bool { return durations[i] < durations[j] })
+
+	fmt.Printf("allow: %d, deny: %d\n", allow, n-allow)
+
+	percentile := 1
+	for i, d := range durations {
+		p := float64((i+1)*10) / float64(n)
+		if p >= float64(percentile) {
+			fmt.Printf("%6.2f%%: %s\n", p*10., d.String())
+			percentile++
+		}
 	}
 }

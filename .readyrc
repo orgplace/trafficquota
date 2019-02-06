@@ -5,4 +5,4 @@
 
 check_command "dep"
 check_command "protoc"
-check_command "protoc-gen-gogoslick"
+check_command "protoc-gen-gogofaster"

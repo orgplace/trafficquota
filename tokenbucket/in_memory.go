@@ -92,7 +92,7 @@ func (b *buckets) take(partitionKey, clusteringKey string) bool {
 		p := value.(*int32)
 		for {
 			current := atomic.LoadInt32(p)
-			if DefaultBucketSize <= current {
+			if DefaultBucketSize <= current+1 {
 				// TODO: load configured size
 				//if configuredBucketSize <= current {
 				return false

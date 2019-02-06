@@ -5,15 +5,15 @@ package orgplace.trafficquota.proto;
 option go_package = "proto";
 
 service TrafficQuotaService {
-    rpc TakeToken (TakeTokenRequest) returns (TakeTokenResponse) {
+    rpc Take (TakeRequest) returns (TakeResponse) {
     }
 }
 
-message TakeTokenRequest {
+message TakeRequest {
     string partition_key = 1;
     repeated string clustering_key = 2;
 }
 
-message TakeTokenResponse {
+message TakeResponse {
     bool allowed = 1;
 }

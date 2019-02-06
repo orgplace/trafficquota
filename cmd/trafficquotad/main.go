@@ -37,6 +37,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer logger.Sync()
 
 	s := buildGRPCServer(logger)
 

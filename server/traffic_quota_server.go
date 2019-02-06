@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"time"
 
 	"google.golang.org/grpc/codes"
 
@@ -25,14 +24,11 @@ func NewTrafficQuotaServer(logger *zap.Logger) proto.TrafficQuotaServiceServer {
 	}
 }
 
-func (s *trafficQuotaServer) TakeToken(ctx context.Context, req *proto.TakeTokenRequest) (*proto.TakeTokenResponse, error) {
-	s.logger.Debug("take token")
-	now := time.Now()
+func (s *trafficQuotaServer) Take(ctx context.Context, req *proto.TakeRequest) (*proto.TakeResponse, error) {
 	ok, err := s.tokenBucket.Take(req.PartitionKey, req.ClusteringKey)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	s.logger.Debug("duration", zap.Duration("time", time.Since(now)))
 
-	return &proto.TakeTokenResponse{Allowed: ok}, nil
+	return &proto.TakeResponse{Allowed: ok}, nil
 }

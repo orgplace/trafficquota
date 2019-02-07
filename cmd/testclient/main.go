@@ -36,13 +36,20 @@ func newConnection(addr string) (*grpc.ClientConn, error) {
 	return grpc.Dial(addr, grpc.WithInsecure())
 }
 
+func newLogger() (*zap.Logger, error) {
+	c := zap.NewProductionConfig()
+	c.Level = zap.NewAtomicLevelAt(config.LogLevel)
+	return c.Build()
+}
+
 func main() {
-	logger, err := zap.NewDevelopment()
+	logger, err := newLogger()
 	if err != nil {
 		panic(err)
 	}
 	defer logger.Sync()
 
+	logger.Debug(config.Listen)
 	conn, err := newConnection(config.Listen)
 	if err != nil {
 		logger.Panic("failed to dial", zap.Error(err))

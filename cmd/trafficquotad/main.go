@@ -20,15 +20,8 @@ import (
 )
 
 func newLogger() (*zap.Logger, error) {
-	var c zap.Config
-	if config.DevelopMode {
-		c = zap.NewDevelopmentConfig()
-	} else {
-		c = zap.NewProductionConfig()
-	}
-
+	c := zap.NewProductionConfig()
 	c.Level = zap.NewAtomicLevelAt(config.LogLevel)
-
 	return c.Build()
 }
 

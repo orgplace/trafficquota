@@ -6,3 +6,4 @@
 check_command "dep"
 check_command "protoc"
 check_command "protoc-gen-gogofaster"
+check_command "grpc-health-probe"

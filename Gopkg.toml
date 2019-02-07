@@ -26,10 +26,6 @@
 
 
 [[constraint]]
-  branch = "master"
-  name = "github.com/golang/protobuf"
-
-[[constraint]]
   name = "github.com/grpc-ecosystem/go-grpc-middleware"
   version = "1.0.0"
 
@@ -48,3 +44,4 @@
 [prune]
   go-tests = true
   unused-packages = true
+

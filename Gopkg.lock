@@ -86,7 +86,7 @@
     "trace",
   ]
   pruneopts = "UT"
-  revision = "d26f9f9a57f3fab6a695bec0d84433c2c50f8bbf"
+  revision = "65e2d4e15006aab9813ff8769e768bbf4bb667a0"
 
 [[projects]]
   branch = "master"
@@ -128,7 +128,7 @@
   revision = "4b09977fb92221987e99d190c8f88f2c92727a29"
 
 [[projects]]
-  digest = "1:9ab5a33d8cb5c120602a34d2e985ce17956a4e8c2edce7e6961568f95e40c09a"
+  digest = "1:a887a56d0ff92cf05b4bb6004b46fc6e64d3fb6aca4eaeb1466bdce183ba5004"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -143,6 +143,8 @@
     "encoding",
     "encoding/proto",
     "grpclog",
+    "health",
+    "health/grpc_health_v1",
     "internal",
     "internal/backoff",
     "internal/binarylog",
@@ -180,6 +182,8 @@
     "golang.org/x/net/context",
     "google.golang.org/grpc",
     "google.golang.org/grpc/codes",
+    "google.golang.org/grpc/health",
+    "google.golang.org/grpc/health/grpc_health_v1",
     "google.golang.org/grpc/status",
   ]
   solver-name = "gps-cdcl"

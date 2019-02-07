@@ -17,6 +17,8 @@ import (
 	"github.com/orgplace/trafficquota/proto"
 	"github.com/orgplace/trafficquota/server"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
 )
 
 func newLogger() (*zap.Logger, error) {
@@ -52,6 +54,7 @@ func main() {
 func buildGRPCServer(logger *zap.Logger) *grpc.Server {
 	s := grpc.NewServer(buildGRPCServerOptions(logger)...)
 
+	grpc_health_v1.RegisterHealthServer(s, health.NewServer())
 	proto.RegisterTrafficQuotaServiceServer(s, server.NewTrafficQuotaServer(logger))
 
 	return s

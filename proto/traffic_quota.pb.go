@@ -26,15 +26,15 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
 
 type TakeRequest struct {
-	PartitionKey  string   `protobuf:"bytes,1,opt,name=partition_key,json=partitionKey,proto3" json:"partition_key,omitempty"`
-	ClusteringKey []string `protobuf:"bytes,2,rep,name=clustering_key,json=clusteringKey" json:"clustering_key,omitempty"`
+	PartitionKey   string   `protobuf:"bytes,1,opt,name=partition_key,json=partitionKey,proto3" json:"partition_key,omitempty"`
+	ClusteringKeys []string `protobuf:"bytes,2,rep,name=clustering_keys,json=clusteringKeys" json:"clustering_keys,omitempty"`
 }
 
 func (m *TakeRequest) Reset()         { *m = TakeRequest{} }
 func (m *TakeRequest) String() string { return proto.CompactTextString(m) }
 func (*TakeRequest) ProtoMessage()    {}
 func (*TakeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_traffic_quota_234a8719799fbe2e, []int{0}
+	return fileDescriptor_traffic_quota_c098dbbff65dd911, []int{0}
 }
 func (m *TakeRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -70,9 +70,9 @@ func (m *TakeRequest) GetPartitionKey() string {
 	return ""
 }
 
-func (m *TakeRequest) GetClusteringKey() []string {
+func (m *TakeRequest) GetClusteringKeys() []string {
 	if m != nil {
-		return m.ClusteringKey
+		return m.ClusteringKeys
 	}
 	return nil
 }
@@ -85,7 +85,7 @@ func (m *TakeResponse) Reset()         { *m = TakeResponse{} }
 func (m *TakeResponse) String() string { return proto.CompactTextString(m) }
 func (*TakeResponse) ProtoMessage()    {}
 func (*TakeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_traffic_quota_234a8719799fbe2e, []int{1}
+	return fileDescriptor_traffic_quota_c098dbbff65dd911, []int{1}
 }
 func (m *TakeResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -134,64 +134,64 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// TrafficQuotaServiceClient is the client API for TrafficQuotaService service.
+// TrafficQuotaClient is the client API for TrafficQuota service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type TrafficQuotaServiceClient interface {
+type TrafficQuotaClient interface {
 	Take(ctx context.Context, in *TakeRequest, opts ...grpc.CallOption) (*TakeResponse, error)
 }
 
-type trafficQuotaServiceClient struct {
+type trafficQuotaClient struct {
 	cc *grpc.ClientConn
 }
 
-func NewTrafficQuotaServiceClient(cc *grpc.ClientConn) TrafficQuotaServiceClient {
-	return &trafficQuotaServiceClient{cc}
+func NewTrafficQuotaClient(cc *grpc.ClientConn) TrafficQuotaClient {
+	return &trafficQuotaClient{cc}
 }
 
-func (c *trafficQuotaServiceClient) Take(ctx context.Context, in *TakeRequest, opts ...grpc.CallOption) (*TakeResponse, error) {
+func (c *trafficQuotaClient) Take(ctx context.Context, in *TakeRequest, opts ...grpc.CallOption) (*TakeResponse, error) {
 	out := new(TakeResponse)
-	err := c.cc.Invoke(ctx, "/orgplace.trafficquota.proto.TrafficQuotaService/Take", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/orgplace.trafficquota.proto.TrafficQuota/Take", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// TrafficQuotaServiceServer is the server API for TrafficQuotaService service.
-type TrafficQuotaServiceServer interface {
+// TrafficQuotaServer is the server API for TrafficQuota service.
+type TrafficQuotaServer interface {
 	Take(context.Context, *TakeRequest) (*TakeResponse, error)
 }
 
-func RegisterTrafficQuotaServiceServer(s *grpc.Server, srv TrafficQuotaServiceServer) {
-	s.RegisterService(&_TrafficQuotaService_serviceDesc, srv)
+func RegisterTrafficQuotaServer(s *grpc.Server, srv TrafficQuotaServer) {
+	s.RegisterService(&_TrafficQuota_serviceDesc, srv)
 }
 
-func _TrafficQuotaService_Take_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TrafficQuota_Take_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(TakeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TrafficQuotaServiceServer).Take(ctx, in)
+		return srv.(TrafficQuotaServer).Take(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/orgplace.trafficquota.proto.TrafficQuotaService/Take",
+		FullMethod: "/orgplace.trafficquota.proto.TrafficQuota/Take",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TrafficQuotaServiceServer).Take(ctx, req.(*TakeRequest))
+		return srv.(TrafficQuotaServer).Take(ctx, req.(*TakeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-var _TrafficQuotaService_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "orgplace.trafficquota.proto.TrafficQuotaService",
-	HandlerType: (*TrafficQuotaServiceServer)(nil),
+var _TrafficQuota_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "orgplace.trafficquota.proto.TrafficQuota",
+	HandlerType: (*TrafficQuotaServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Take",
-			Handler:    _TrafficQuotaService_Take_Handler,
+			Handler:    _TrafficQuota_Take_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -219,8 +219,8 @@ func (m *TakeRequest) MarshalTo(dAtA []byte) (int, error) {
 		i = encodeVarintTrafficQuota(dAtA, i, uint64(len(m.PartitionKey)))
 		i += copy(dAtA[i:], m.PartitionKey)
 	}
-	if len(m.ClusteringKey) > 0 {
-		for _, s := range m.ClusteringKey {
+	if len(m.ClusteringKeys) > 0 {
+		for _, s := range m.ClusteringKeys {
 			dAtA[i] = 0x12
 			i++
 			l = len(s)
@@ -284,8 +284,8 @@ func (m *TakeRequest) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTrafficQuota(uint64(l))
 	}
-	if len(m.ClusteringKey) > 0 {
-		for _, s := range m.ClusteringKey {
+	if len(m.ClusteringKeys) > 0 {
+		for _, s := range m.ClusteringKeys {
 			l = len(s)
 			n += 1 + l + sovTrafficQuota(uint64(l))
 		}
@@ -378,7 +378,7 @@ func (m *TakeRequest) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ClusteringKey", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field ClusteringKeys", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -403,7 +403,7 @@ func (m *TakeRequest) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.ClusteringKey = append(m.ClusteringKey, string(dAtA[iNdEx:postIndex]))
+			m.ClusteringKeys = append(m.ClusteringKeys, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -601,23 +601,23 @@ var (
 	ErrIntOverflowTrafficQuota   = fmt.Errorf("proto: integer overflow")
 )
 
-func init() { proto.RegisterFile("traffic_quota.proto", fileDescriptor_traffic_quota_234a8719799fbe2e) }
+func init() { proto.RegisterFile("traffic_quota.proto", fileDescriptor_traffic_quota_c098dbbff65dd911) }
 
-var fileDescriptor_traffic_quota_234a8719799fbe2e = []byte{
-	// 239 bytes of a gzipped FileDescriptorProto
+var fileDescriptor_traffic_quota_c098dbbff65dd911 = []byte{
+	// 235 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0x2e, 0x29, 0x4a, 0x4c,
 	0x4b, 0xcb, 0x4c, 0x8e, 0x2f, 0x2c, 0xcd, 0x2f, 0x49, 0xd4, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17,
 	0x92, 0xce, 0x2f, 0x4a, 0x2f, 0xc8, 0x49, 0x4c, 0x4e, 0xd5, 0x83, 0xca, 0x22, 0x49, 0x2a, 0x45,
-	0x72, 0x71, 0x87, 0x24, 0x66, 0xa7, 0x06, 0xa5, 0x16, 0x96, 0xa6, 0x16, 0x97, 0x08, 0x29, 0x73,
+	0x73, 0x71, 0x87, 0x24, 0x66, 0xa7, 0x06, 0xa5, 0x16, 0x96, 0xa6, 0x16, 0x97, 0x08, 0x29, 0x73,
 	0xf1, 0x16, 0x24, 0x16, 0x95, 0x64, 0x96, 0x64, 0xe6, 0xe7, 0xc5, 0x67, 0xa7, 0x56, 0x4a, 0x30,
-	0x2a, 0x30, 0x6a, 0x70, 0x06, 0xf1, 0xc0, 0x05, 0xbd, 0x53, 0x2b, 0x85, 0x54, 0xb9, 0xf8, 0x92,
-	0x73, 0x4a, 0x8b, 0x4b, 0x52, 0x8b, 0x32, 0xf3, 0xd2, 0xc1, 0xaa, 0x98, 0x14, 0x98, 0x35, 0x38,
-	0x83, 0x78, 0x11, 0xa2, 0xde, 0xa9, 0x95, 0x4a, 0x1a, 0x5c, 0x3c, 0x10, 0xa3, 0x8b, 0x0b, 0xf2,
-	0xf3, 0x8a, 0x53, 0x85, 0x24, 0xb8, 0xd8, 0x13, 0x73, 0x72, 0xf2, 0xcb, 0x53, 0x53, 0xc0, 0xa6,
-	0x72, 0x04, 0xc1, 0xb8, 0x46, 0x25, 0x5c, 0xc2, 0x21, 0x10, 0xa7, 0x05, 0x82, 0x9c, 0x16, 0x9c,
-	0x5a, 0x54, 0x96, 0x99, 0x9c, 0x2a, 0x14, 0xcb, 0xc5, 0x02, 0x32, 0x40, 0x48, 0x43, 0x0f, 0x8f,
-	0x0f, 0xf4, 0x90, 0x9c, 0x2f, 0xa5, 0x49, 0x84, 0x4a, 0x88, 0x6b, 0x94, 0x18, 0x9c, 0xe4, 0x4f,
-	0x3c, 0x92, 0x63, 0xbc, 0xf0, 0x48, 0x8e, 0xf1, 0xc1, 0x23, 0x39, 0xc6, 0x09, 0x8f, 0xe5, 0x18,
-	0x2e, 0x3c, 0x96, 0x63, 0xb8, 0xf1, 0x58, 0x8e, 0x21, 0x8a, 0x15, 0xac, 0x3e, 0x89, 0x0d, 0x4c,
-	0x19, 0x03, 0x02, 0x00, 0x00, 0xff, 0xff, 0x8f, 0x11, 0xd7, 0x18, 0x56, 0x01, 0x00, 0x00,
+	0x2a, 0x30, 0x6a, 0x70, 0x06, 0xf1, 0xc0, 0x05, 0xbd, 0x53, 0x2b, 0x85, 0xd4, 0xb9, 0xf8, 0x93,
+	0x73, 0x4a, 0x8b, 0x4b, 0x52, 0x8b, 0x32, 0xf3, 0xd2, 0x41, 0xaa, 0x8a, 0x25, 0x98, 0x14, 0x98,
+	0x35, 0x38, 0x83, 0xf8, 0x10, 0xc2, 0xde, 0xa9, 0x95, 0xc5, 0x4a, 0x1a, 0x5c, 0x3c, 0x10, 0xc3,
+	0x8b, 0x0b, 0xf2, 0xf3, 0x8a, 0x53, 0x85, 0x24, 0xb8, 0xd8, 0x13, 0x73, 0x72, 0xf2, 0xcb, 0x53,
+	0x53, 0xc0, 0xe6, 0x72, 0x04, 0xc1, 0xb8, 0x46, 0xb9, 0x5c, 0x3c, 0x21, 0x10, 0xc7, 0x05, 0x82,
+	0x1c, 0x27, 0x14, 0xcb, 0xc5, 0x02, 0xd2, 0x29, 0xa4, 0xa1, 0x87, 0xc7, 0xf1, 0x7a, 0x48, 0x2e,
+	0x97, 0xd2, 0x24, 0x42, 0x25, 0xc4, 0x19, 0x4a, 0x0c, 0x4e, 0xf2, 0x27, 0x1e, 0xc9, 0x31, 0x5e,
+	0x78, 0x24, 0xc7, 0xf8, 0xe0, 0x91, 0x1c, 0xe3, 0x84, 0xc7, 0x72, 0x0c, 0x17, 0x1e, 0xcb, 0x31,
+	0xdc, 0x78, 0x2c, 0xc7, 0x10, 0xc5, 0x0a, 0x56, 0x9f, 0xc4, 0x06, 0xa6, 0x8c, 0x01, 0x01, 0x00,
+	0x00, 0xff, 0xff, 0xa2, 0x56, 0x02, 0xa5, 0x51, 0x01, 0x00, 0x00,
 }

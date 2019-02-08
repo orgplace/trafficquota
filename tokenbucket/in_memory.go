@@ -10,6 +10,7 @@ type inMemoryTokenBucket struct {
 	shards bucketShards
 }
 
+// NewInMemoryTokenBucket constructs a in-memory TokenBucket
 func NewInMemoryTokenBucket() TokenBucket {
 	b := &inMemoryTokenBucket{
 		shards: *newBucketShard(),

@@ -7,20 +7,25 @@ import (
 )
 
 var (
+	// LogLevel is a log level.
 	LogLevel zapcore.Level
 
+	// Listen is address to listen.
+	// It is must be host:port or unix:/path/of/sock .
 	Listen string
 )
 
 func init() {
-	LogLevel = getLogLevel()
+	g := configGetter(os.Getenv)
+	LogLevel = g.getLogLevel("LOG_LEVEL")
 
-	// Listen = "unix:/tmp/test.sock"
-	Listen = getEnv("LISTEN", "127.0.0.1:3895")
+	Listen = g.getEnv("LISTEN", "127.0.0.1:3895")
 }
 
-func getLogLevel() zapcore.Level {
-	val := os.Getenv("LOG_LEVEL")
+type configGetter func(string) string
+
+func (g configGetter) getLogLevel(key string) zapcore.Level {
+	val := g(key)
 	if val == "" {
 		return zapcore.DebugLevel
 	}
@@ -32,8 +37,8 @@ func getLogLevel() zapcore.Level {
 	return l
 }
 
-func getEnv(key string, def string) string {
-	val := os.Getenv(key)
+func (g configGetter) getEnv(key, def string) string {
+	val := g(key)
 	if val == "" {
 		return def
 	}

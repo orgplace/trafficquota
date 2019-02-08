@@ -4,14 +4,14 @@ package orgplace.trafficquota.proto;
 
 option go_package = "proto";
 
-service TrafficQuotaService {
+service TrafficQuota {
     rpc Take (TakeRequest) returns (TakeResponse) {
     }
 }
 
 message TakeRequest {
     string partition_key = 1;
-    repeated string clustering_key = 2;
+    repeated string clustering_keys = 2;
 }
 
 message TakeResponse {

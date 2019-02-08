@@ -56,7 +56,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	c := proto.NewTrafficQuotaServiceClient(conn)
+	c := proto.NewTrafficQuotaClient(conn)
 
 	type result struct {
 		allowed  bool
@@ -68,8 +68,8 @@ func main() {
 		go func() {
 			t := time.Now()
 			res, err := c.Take(context.Background(), &proto.TakeRequest{
-				PartitionKey:  "sample",
-				ClusteringKey: []string{"test"},
+				PartitionKey:   "sample",
+				ClusteringKeys: []string{"test"},
 			})
 			d := time.Since(t)
 			if err != nil {

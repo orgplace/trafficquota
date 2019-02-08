@@ -8,6 +8,8 @@ import (
 	"syscall"
 
 	"github.com/orgplace/trafficquota/config"
+	"github.com/orgplace/trafficquota/server"
+	"github.com/orgplace/trafficquota/tokenbucket"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
@@ -15,7 +17,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/orgplace/trafficquota/proto"
-	"github.com/orgplace/trafficquota/server"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
@@ -34,9 +35,9 @@ func main() {
 	}
 	defer logger.Sync()
 
-	s := buildGRPCServer(logger)
+	server := buildGRPCServer(logger)
 
-	if err := listenAndServe(logger, s, config.Listen); err != nil {
+	if err := listenAndServe(logger, server, config.Listen); err != nil {
 		logger.Panic("failed to start the server", zap.Error(err))
 	}
 
@@ -48,14 +49,16 @@ func main() {
 
 	logger.Info("Shutting down the server")
 
-	s.GracefulStop()
+	server.GracefulStop()
 }
 
 func buildGRPCServer(logger *zap.Logger) *grpc.Server {
 	s := grpc.NewServer(buildGRPCServerOptions(logger)...)
 
 	grpc_health_v1.RegisterHealthServer(s, health.NewServer())
-	proto.RegisterTrafficQuotaServiceServer(s, server.NewTrafficQuotaServer(logger))
+	proto.RegisterTrafficQuotaServer(s, server.NewTrafficQuotaServer(
+		logger, tokenbucket.NewInMemoryTokenBucket(),
+	))
 
 	return s
 }

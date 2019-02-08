@@ -17,16 +17,18 @@ type trafficQuotaServer struct {
 	tokenBucket tokenbucket.TokenBucket
 }
 
-func NewTrafficQuotaServer(logger *zap.Logger) proto.TrafficQuotaServiceServer {
+// NewTrafficQuotaServer is a constructor of TrafficQuotaServer
+func NewTrafficQuotaServer(logger *zap.Logger, tokenBucket tokenbucket.TokenBucket) proto.TrafficQuotaServer {
 	return &trafficQuotaServer{
 		logger:      logger,
-		tokenBucket: tokenbucket.NewInMemoryTokenBucket(),
+		tokenBucket: tokenBucket,
 	}
 }
 
 func (s *trafficQuotaServer) Take(ctx context.Context, req *proto.TakeRequest) (*proto.TakeResponse, error) {
-	ok, err := s.tokenBucket.Take(req.PartitionKey, req.ClusteringKey)
+	ok, err := s.tokenBucket.Take(req.PartitionKey, req.ClusteringKeys)
 	if err != nil {
+		s.logger.Error("failed to take token", zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 

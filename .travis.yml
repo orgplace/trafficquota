@@ -1,3 +1,16 @@
 language: go
 go:
-- 1.11.x
+- 1.x
+
+services:
+- docker
+
+script:
+- go test -v ./...
+- docker build -t orgplace/trafficquota .
+
+deploy:
+  provider: script
+  script:
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker push orgplace/trafficquota

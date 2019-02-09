@@ -19,7 +19,7 @@ func init() {
 	g := configGetter(os.Getenv)
 	LogLevel = g.getLogLevel("LOG_LEVEL")
 
-	Listen = g.getEnv("LISTEN", "127.0.0.1:3895")
+	Listen = g.getEnv("LISTEN", "0.0.0.0:3895")
 }
 
 type configGetter func(string) string

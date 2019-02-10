@@ -4,4 +4,4 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/orgplace/trafficquota)](https://goreportcard.com/report/github.com/orgplace/trafficquota)
 [![Docker Pulls](https://img.shields.io/docker/pulls/orgplace/trafficquota.svg?style=flat)](https://hub.docker.com/r/orgplace/trafficquota)
 
-Token bucket server to control web API requests based on gRPC
+[Token bucket](https://en.wikipedia.org/wiki/Token_bucket) server to control web API requests based on gRPC

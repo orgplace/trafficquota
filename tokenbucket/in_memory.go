@@ -1,6 +1,7 @@
 package tokenbucket
 
 import (
+	"math"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -21,6 +22,7 @@ func NewInMemoryTokenBucket() TokenBucket {
 		for range c {
 			b.shards.each(func(partitionKey string, b *buckets) {
 				b.fill()
+				// TODO: Delete empty bucket
 			})
 		}
 	}()
@@ -69,19 +71,30 @@ func newBuckets() *buckets {
 	}
 }
 
+// expungedBucket means that bucket was expunged.
+// After swap to this value, the bucket must be deleted from buckets.
+const expungedBucket = int32(math.MinInt32)
+
 func (b *buckets) fill() {
 	n := int32(DefaultRate / int32(time.Second/DefaultInterval))
 	b.m.Range(func(key, value interface{}) bool {
 		p := value.(*int32)
 
-		// LoadInt32 から Delete の間で rate 以上のアクセスが来ないことを仮定している。
-		// もし LoadInt32 の後に take によって rate 以上増加すると、
-		// Delete によって増分を失って過剰に許可してしまう。
-		// エントリー単位でロックすれば回避できるが行っていない。
-		if atomic.LoadInt32(p) < 0 {
-			b.m.Delete(key)
-		} else {
-			atomic.AddInt32(p, -n)
+		for {
+			current := atomic.LoadInt32(p)
+			if current == expungedBucket {
+				break
+			}
+
+			next := current - n
+			if next < 0 {
+				if atomic.CompareAndSwapInt32(p, current, expungedBucket) {
+					b.m.Delete(key)
+					break
+				}
+			} else if atomic.CompareAndSwapInt32(p, current, next) {
+				break
+			}
 		}
 
 		return false
@@ -89,24 +102,48 @@ func (b *buckets) fill() {
 }
 
 func (b *buckets) take(partitionKey, clusteringKey string) bool {
-	value, loaded := b.m.LoadOrStore(clusteringKey, new(int32))
-	if loaded {
-		p := value.(*int32)
+LOAD_OR_NEW_LOOP:
+	for {
+		value, loaded := b.loadOrNew(clusteringKey)
+		if !loaded {
+			return true
+		}
+
 		for {
-			current := atomic.LoadInt32(p)
-			if DefaultBucketSize <= current+1 {
+			current := atomic.LoadInt32(value)
+			if current == expungedBucket {
+				continue LOAD_OR_NEW_LOOP
+			}
+
+			next := current + 1
+			if DefaultBucketSize <= next {
 				// TODO: load configured size
 				//if configuredBucketSize <= current {
 				return false
 				//}
 			}
 
-			if atomic.CompareAndSwapInt32(p, current, maxInt32(current+1, 0)) {
+			if atomic.CompareAndSwapInt32(value, current, maxInt32(next, 0)) {
 				return true
 			}
 		}
 	}
-	return true
+}
+
+func (b *buckets) loadOrNew(clusteringKey string) (*int32, bool) {
+	newValue := new(int32)
+	for {
+		p, loaded := b.m.LoadOrStore(clusteringKey, newValue)
+		if !loaded {
+			return newValue, false
+		}
+
+		value := p.(*int32)
+		current := atomic.LoadInt32(value)
+		if current != expungedBucket {
+			return value, true
+		}
+	}
 }
 
 func maxInt32(a, b int32) int32 {

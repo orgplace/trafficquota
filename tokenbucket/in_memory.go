@@ -8,66 +8,74 @@ import (
 )
 
 type inMemoryTokenBucket struct {
-	shards bucketShards
+	shards sync.Map
 }
 
 // NewInMemoryTokenBucket constructs a in-memory TokenBucket
 func NewInMemoryTokenBucket() TokenBucket {
-	b := &inMemoryTokenBucket{
-		shards: *newBucketShard(),
+	tb := &inMemoryTokenBucket{
+		shards: sync.Map{},
 	}
 
 	go func() {
 		c := time.Tick(DefaultInterval)
 		for range c {
-			b.shards.each(func(partitionKey string, b *buckets) {
-				b.fill()
-				// TODO: Delete empty bucket
+			tb.shards.Range(func(key, value interface{}) bool {
+				b := value.(*buckets)
+
+				if b.fill() {
+					b.mu.Lock()
+					if b.empty() {
+						b.expunged = true
+					}
+					b.mu.Unlock()
+					tb.shards.Delete(key)
+				}
+
+				return true
 			})
 		}
 	}()
 
-	return b
+	return tb
 }
 
-func (b *inMemoryTokenBucket) Take(partitionKey string, clusteringKeys []string) (bool, error) {
-	buckets := b.shards.loadOrStore(partitionKey, newBuckets())
-	for _, clusteringKey := range clusteringKeys {
-		if ok := buckets.take(partitionKey, clusteringKey); !ok {
-			return false, nil
+func (tb *inMemoryTokenBucket) Take(partitionKey string, clusteringKeys []string) (bool, error) {
+	newValue := newBuckets()
+	for {
+		value, _ := tb.shards.LoadOrStore(partitionKey, newValue)
+		b := value.(*buckets)
+
+		b.mu.Lock()
+		if b.expunged {
+			b.mu.Unlock()
+			continue
 		}
+
+		for _, clusteringKey := range clusteringKeys {
+			if ok := b.take(partitionKey, clusteringKey); !ok {
+				b.mu.Unlock()
+				return false, nil
+			}
+		}
+		b.mu.Unlock()
+		return true, nil
 	}
-	return true, nil
-}
-
-type bucketShards sync.Map
-
-func newBucketShard() *bucketShards {
-	return &bucketShards{}
-}
-
-func (s *bucketShards) each(f func(key string, value *buckets)) {
-	(*sync.Map)(s).Range(func(key, value interface{}) bool {
-		f(key.(string), value.(*buckets))
-		return false
-	})
-}
-
-func (s *bucketShards) loadOrStore(key string, b *buckets) *buckets {
-	v, _ := (*sync.Map)(s).LoadOrStore(key, b)
-	return v.(*buckets)
 }
 
 type buckets struct {
 	// Map of [key] => [took token].
 	// Took token is start from 0.
 	// Then, ([took token] + 1) access was permitted.
-	m *sync.Map
+	m sync.Map
+
+	mu       sync.Mutex
+	expunged bool
 }
 
 func newBuckets() *buckets {
 	return &buckets{
-		m: &sync.Map{},
+		m: sync.Map{},
 	}
 }
 
@@ -75,8 +83,9 @@ func newBuckets() *buckets {
 // After swap to this value, the bucket must be deleted from buckets.
 const expungedBucket = int32(math.MinInt32)
 
-func (b *buckets) fill() {
+func (b *buckets) fill() bool {
 	n := int32(DefaultRate / int32(time.Second/DefaultInterval))
+	empty := true
 	b.m.Range(func(key, value interface{}) bool {
 		p := value.(*int32)
 
@@ -93,18 +102,38 @@ func (b *buckets) fill() {
 					break
 				}
 			} else if atomic.CompareAndSwapInt32(p, current, next) {
+				empty = false
 				break
 			}
 		}
 
-		return false
+		return true
 	})
+	return empty
+}
+
+func (b *buckets) empty() bool {
+	empty := true
+	b.m.Range(func(key, value interface{}) bool {
+		p := value.(*int32)
+
+		current := atomic.LoadInt32(p)
+		if current == expungedBucket {
+			return true
+		}
+
+		empty = false
+		return false
+
+	})
+	return empty
 }
 
 func (b *buckets) take(partitionKey, clusteringKey string) bool {
+	newValue := new(int32)
 LOAD_OR_NEW_LOOP:
 	for {
-		value, loaded := b.loadOrNew(clusteringKey)
+		value, loaded := b.loadOrStore(clusteringKey, newValue)
 		if !loaded {
 			return true
 		}
@@ -123,15 +152,14 @@ LOAD_OR_NEW_LOOP:
 				//}
 			}
 
-			if atomic.CompareAndSwapInt32(value, current, maxInt32(next, 0)) {
+			if atomic.CompareAndSwapInt32(value, current, next) {
 				return true
 			}
 		}
 	}
 }
 
-func (b *buckets) loadOrNew(clusteringKey string) (*int32, bool) {
-	newValue := new(int32)
+func (b *buckets) loadOrStore(clusteringKey string, newValue *int32) (*int32, bool) {
 	for {
 		p, loaded := b.m.LoadOrStore(clusteringKey, newValue)
 		if !loaded {
@@ -144,11 +172,4 @@ func (b *buckets) loadOrNew(clusteringKey string) (*int32, bool) {
 			return value, true
 		}
 	}
-}
-
-func maxInt32(a, b int32) int32 {
-	if a < b {
-		return b
-	}
-	return a
 }

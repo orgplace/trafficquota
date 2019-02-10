@@ -13,9 +13,7 @@ type inMemoryTokenBucket struct {
 
 // NewInMemoryTokenBucket constructs a in-memory TokenBucket
 func NewInMemoryTokenBucket() TokenBucket {
-	tb := &inMemoryTokenBucket{
-		shards: sync.Map{},
-	}
+	tb := &inMemoryTokenBucket{}
 
 	go func() {
 		c := time.Tick(DefaultInterval)
@@ -46,19 +44,19 @@ func (tb *inMemoryTokenBucket) Take(partitionKey string, clusteringKeys []string
 		value, _ := tb.shards.LoadOrStore(partitionKey, newValue)
 		b := value.(*buckets)
 
-		b.mu.Lock()
+		b.mu.RLock()
 		if b.expunged {
-			b.mu.Unlock()
+			b.mu.RUnlock()
 			continue
 		}
 
 		for _, clusteringKey := range clusteringKeys {
 			if ok := b.take(partitionKey, clusteringKey); !ok {
-				b.mu.Unlock()
+				b.mu.RUnlock()
 				return false, nil
 			}
 		}
-		b.mu.Unlock()
+		b.mu.RUnlock()
 		return true, nil
 	}
 }
@@ -69,14 +67,12 @@ type buckets struct {
 	// Then, ([took token] + 1) access was permitted.
 	m sync.Map
 
-	mu       sync.Mutex
+	mu       sync.RWMutex
 	expunged bool
 }
 
 func newBuckets() *buckets {
-	return &buckets{
-		m: sync.Map{},
-	}
+	return &buckets{}
 }
 
 // expungedBucket means that bucket was expunged.

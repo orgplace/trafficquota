@@ -1,3 +1,4 @@
+// Package client provides a client to access to token bucket server.
 package client
 
 import (
@@ -13,11 +14,17 @@ import (
 	"google.golang.org/grpc"
 )
 
+// Client is a client to access to token bucket server.
 type Client interface {
+	// Take takes tokens from server.
 	Take(partitionKey string, clusteringKeys ...string) (bool, error)
+	// TakeContext takes tokens from server.
 	TakeContext(ctx context.Context, partitionKey string, clusteringKeys ...string) (bool, error)
+	// Ping verifies a connection to the server is still alive.
 	Ping() error
+	// PingContext verifies a connection to the server is still alive.
 	PingContext(ctx context.Context) error
+	// Close closes a connection.
 	Close() error
 }
 

@@ -1,8 +1,9 @@
+// Package tokenbucket provides an interface of token bucket and its implementation.
 package tokenbucket
 
 import "time"
 
-//go:generate mockgen -source=${GOFILE} -package=${GOPACKAGE} -destination=mock_${GOFILE}
+//go:generate mockgen -source=${GOFILE} -package=${GOPACKAGE} -write_package_comment=false -destination=mock_${GOFILE}
 
 const (
 	// DefaultInterval is default interval to fill bucket.

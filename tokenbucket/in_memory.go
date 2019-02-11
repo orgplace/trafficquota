@@ -8,40 +8,35 @@ import (
 )
 
 type inMemoryTokenBucket struct {
-	shards sync.Map
+	m sync.Map
 }
 
 // NewInMemoryTokenBucket constructs a in-memory TokenBucket
 func NewInMemoryTokenBucket() TokenBucket {
-	tb := &inMemoryTokenBucket{}
+	return &inMemoryTokenBucket{}
+}
 
-	go func() {
-		c := time.Tick(DefaultInterval)
-		for range c {
-			tb.shards.Range(func(key, value interface{}) bool {
-				b := value.(*buckets)
+func (tb *inMemoryTokenBucket) Fill() {
+	tb.m.Range(func(key, value interface{}) bool {
+		b := value.(*buckets)
 
-				if b.fill() {
-					b.mu.Lock()
-					if b.empty() {
-						b.expunged = true
-					}
-					b.mu.Unlock()
-					tb.shards.Delete(key)
-				}
-
-				return true
-			})
+		if b.fill() {
+			b.mu.Lock()
+			if b.empty() {
+				b.expunged = true
+			}
+			b.mu.Unlock()
+			tb.m.Delete(key)
 		}
-	}()
 
-	return tb
+		return true
+	})
 }
 
 func (tb *inMemoryTokenBucket) Take(partitionKey string, clusteringKeys []string) (bool, error) {
 	newValue := newBuckets()
 	for {
-		value, _ := tb.shards.LoadOrStore(partitionKey, newValue)
+		value, _ := tb.m.LoadOrStore(partitionKey, newValue)
 		b := value.(*buckets)
 
 		b.mu.RLock()

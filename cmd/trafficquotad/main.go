@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/orgplace/trafficquota/config"
 	"github.com/orgplace/trafficquota/server"
@@ -55,9 +56,17 @@ func main() {
 func buildGRPCServer(logger *zap.Logger) *grpc.Server {
 	s := grpc.NewServer(buildGRPCServerOptions(logger)...)
 
+	tb := tokenbucket.NewInMemoryTokenBucket()
+	go func() {
+		c := time.Tick(tokenbucket.DefaultInterval)
+		for range c {
+			tb.Fill()
+		}
+	}()
+
 	grpc_health_v1.RegisterHealthServer(s, health.NewServer())
 	proto.RegisterTrafficQuotaServer(s, server.NewTrafficQuotaServer(
-		logger, tokenbucket.NewInMemoryTokenBucket(),
+		logger, tb,
 	))
 
 	return s

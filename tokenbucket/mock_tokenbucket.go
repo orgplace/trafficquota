@@ -32,9 +32,18 @@ func (m *MockTokenBucket) EXPECT() *MockTokenBucketMockRecorder {
 	return m.recorder
 }
 
+// Fill mocks base method
+func (m *MockTokenBucket) Fill() {
+	m.ctrl.Call(m, "Fill")
+}
+
+// Fill indicates an expected call of Fill
+func (mr *MockTokenBucketMockRecorder) Fill() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Fill", reflect.TypeOf((*MockTokenBucket)(nil).Fill))
+}
+
 // Take mocks base method
 func (m *MockTokenBucket) Take(partitionKey string, clusteringKeys []string) (bool, error) {
-	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Take", partitionKey, clusteringKeys)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
@@ -43,6 +52,5 @@ func (m *MockTokenBucket) Take(partitionKey string, clusteringKeys []string) (bo
 
 // Take indicates an expected call of Take
 func (mr *MockTokenBucketMockRecorder) Take(partitionKey, clusteringKeys interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Take", reflect.TypeOf((*MockTokenBucket)(nil).Take), partitionKey, clusteringKeys)
 }

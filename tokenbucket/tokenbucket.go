@@ -16,5 +16,6 @@ const (
 // TokenBucket is an algorithm used to control network traffic.
 // This interface provices goroutine-safe methods.
 type TokenBucket interface {
+	Fill()
 	Take(partitionKey string, clusteringKeys []string) (bool, error)
 }

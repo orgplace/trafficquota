@@ -34,7 +34,7 @@ func (m *TakeRequest) Reset()         { *m = TakeRequest{} }
 func (m *TakeRequest) String() string { return proto.CompactTextString(m) }
 func (*TakeRequest) ProtoMessage()    {}
 func (*TakeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_traffic_quota_c098dbbff65dd911, []int{0}
+	return fileDescriptor_traffic_quota_380e766c8481084e, []int{0}
 }
 func (m *TakeRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -85,7 +85,7 @@ func (m *TakeResponse) Reset()         { *m = TakeResponse{} }
 func (m *TakeResponse) String() string { return proto.CompactTextString(m) }
 func (*TakeResponse) ProtoMessage()    {}
 func (*TakeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_traffic_quota_c098dbbff65dd911, []int{1}
+	return fileDescriptor_traffic_quota_380e766c8481084e, []int{1}
 }
 func (m *TakeResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -601,9 +601,9 @@ var (
 	ErrIntOverflowTrafficQuota   = fmt.Errorf("proto: integer overflow")
 )
 
-func init() { proto.RegisterFile("traffic_quota.proto", fileDescriptor_traffic_quota_c098dbbff65dd911) }
+func init() { proto.RegisterFile("traffic_quota.proto", fileDescriptor_traffic_quota_380e766c8481084e) }
 
-var fileDescriptor_traffic_quota_c098dbbff65dd911 = []byte{
+var fileDescriptor_traffic_quota_380e766c8481084e = []byte{
 	// 235 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0x2e, 0x29, 0x4a, 0x4c,
 	0x4b, 0xcb, 0x4c, 0x8e, 0x2f, 0x2c, 0xcd, 0x2f, 0x49, 0xd4, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17,

@@ -6,7 +6,10 @@ services:
 - docker
 
 script:
-- go test -v ./...
+- ./scripts/ci-tests.sh
 - docker build -t orgplace/trafficquota .
 - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 - docker push orgplace/trafficquota
+
+after_success:
+- bash <(curl -s https://codecov.io/bash)

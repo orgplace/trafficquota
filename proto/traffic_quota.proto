@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package orgplace.trafficquota.proto;
+package orgplace.trafficquota;
 
 option go_package = "proto";
 

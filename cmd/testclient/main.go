@@ -1,40 +1,16 @@
 package main
 
 import (
-	"context"
 	"fmt"
-	"net"
 	"sort"
-	"strings"
 	"time"
 
 	"go.uber.org/zap"
 
+	"github.com/orgplace/trafficquota/client"
 	"github.com/orgplace/trafficquota/config"
-	"github.com/orgplace/trafficquota/proto"
 	"github.com/orgplace/trafficquota/tokenbucket"
-
-	"google.golang.org/grpc"
 )
-
-func newConnection(addr string) (*grpc.ClientConn, error) {
-	const unixSocketPrefix = "unix:"
-
-	if strings.HasPrefix(addr, unixSocketPrefix) {
-		socketFile := addr[len(unixSocketPrefix):]
-
-		return grpc.Dial(
-			socketFile,
-			grpc.WithInsecure(),
-			grpc.WithDialer(func(a string, t time.Duration) (net.Conn, error) {
-				return net.Dial("unix", a)
-			}),
-			// grpc.WithUnaryInterceptor(grpc_zap.UnaryClientInterceptor(logger)),
-		)
-	}
-
-	return grpc.Dial(addr, grpc.WithInsecure())
-}
 
 func newLogger() (*zap.Logger, error) {
 	c := zap.NewProductionConfig()
@@ -50,13 +26,11 @@ func main() {
 	defer logger.Sync()
 
 	logger.Debug(config.Listen)
-	conn, err := newConnection(config.Listen)
+	c, err := client.NewInsecureClient(config.Listen)
 	if err != nil {
 		logger.Panic("failed to dial", zap.Error(err))
 	}
-	defer conn.Close()
-
-	c := proto.NewTrafficQuotaClient(conn)
+	defer c.Close()
 
 	testcases := []testcase{
 		{
@@ -65,9 +39,8 @@ func main() {
 			clusteringKeys: []string{""},
 		},
 		{
-			n:              tokenbucket.DefaultBucketSize * 5,
-			partitionKey:   "tenant2",
-			clusteringKeys: []string{""},
+			n:            tokenbucket.DefaultBucketSize * 5,
+			partitionKey: "tenant2",
 		},
 		{
 			n:              tokenbucket.DefaultBucketSize * 5 / 2,
@@ -134,21 +107,18 @@ func printResults(tc *testcase) {
 	}
 }
 
-func burst(logger *zap.Logger, c proto.TrafficQuotaClient, tc *testcase) {
+func burst(logger *zap.Logger, c client.Client, tc *testcase) {
 	for i := 0; i < tc.n; i++ {
 		go func() {
 			t := time.Now()
-			res, err := c.Take(context.Background(), &proto.TakeRequest{
-				PartitionKey:   tc.partitionKey,
-				ClusteringKeys: tc.clusteringKeys,
-			})
+			res, err := c.Take(tc.partitionKey, tc.clusteringKeys...)
 			d := time.Since(t)
 			if err != nil {
 				logger.Panic("failed to take token", zap.Error(err))
 			}
 
 			tc.results <- &result{
-				allowed:  res.Allowed,
+				allowed:  res,
 				duration: d,
 			}
 		}()

@@ -22,30 +22,42 @@ func Test_trafficQuotaServer_Take(t *testing.T) {
 		ctx context.Context
 		req *proto.TakeRequest
 	}
+	type takeCall struct {
+		partitionKey   string
+		clusteringKeys []string
+		allowed        bool
+		err            error
+	}
 	tests := []struct {
-		name               string
-		args               args
-		tokenBucketAllowed bool
-		tokenBucketError   error
-		want               *proto.TakeResponse
-		wantErr            error
+		name     string
+		args     args
+		takeCall takeCall
+		want     *proto.TakeResponse
+		wantErr  error
 	}{
 		{
 			name: "allowed empty",
 			args: args{
 				req: &proto.TakeRequest{},
 			},
-			tokenBucketAllowed: true,
-			want:               &proto.TakeResponse{Allowed: true},
+			takeCall: takeCall{
+				partitionKey:   "",
+				clusteringKeys: []string{""},
+				allowed:        true,
+			},
+			want: &proto.TakeResponse{Allowed: true},
 		},
 		{
 			name: "error",
 			args: args{
 				req: &proto.TakeRequest{},
 			},
-			tokenBucketAllowed: true,
-			tokenBucketError:   errors.New("error for test"),
-			wantErr:            status.Error(codes.Internal, "error for test"),
+			takeCall: takeCall{
+				partitionKey:   "",
+				clusteringKeys: []string{""},
+				err:            errors.New("error for test"),
+			},
+			wantErr: status.Error(codes.Internal, "error for test"),
 		},
 	}
 	for _, tt := range tests {
@@ -57,9 +69,9 @@ func Test_trafficQuotaServer_Take(t *testing.T) {
 
 			tokenBucket := tokenbucket.NewMockTokenBucket(ctrl)
 			tokenBucket.EXPECT().Take(
-				tt.args.req.PartitionKey,
-				tt.args.req.ClusteringKeys,
-			).Return(tt.tokenBucketAllowed, tt.tokenBucketError)
+				tt.takeCall.partitionKey,
+				tt.takeCall.clusteringKeys,
+			).Return(tt.takeCall.allowed, tt.takeCall.err)
 
 			s := NewTrafficQuotaServer(logger, tokenBucket)
 			got, err := s.Take(tt.args.ctx, tt.args.req)

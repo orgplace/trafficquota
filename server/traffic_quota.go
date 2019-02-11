@@ -12,6 +12,8 @@ import (
 	"go.uber.org/zap"
 )
 
+var defaultClusteringKeys = []string{""}
+
 type trafficQuotaServer struct {
 	logger      *zap.Logger
 	tokenBucket tokenbucket.TokenBucket
@@ -26,7 +28,12 @@ func NewTrafficQuotaServer(logger *zap.Logger, tokenBucket tokenbucket.TokenBuck
 }
 
 func (s *trafficQuotaServer) Take(ctx context.Context, req *proto.TakeRequest) (*proto.TakeResponse, error) {
-	ok, err := s.tokenBucket.Take(req.PartitionKey, req.ClusteringKeys)
+	clusteringKeys := req.ClusteringKeys
+	if len(clusteringKeys) == 0 {
+		clusteringKeys = defaultClusteringKeys
+	}
+
+	ok, err := s.tokenBucket.Take(req.PartitionKey, clusteringKeys)
 	if err != nil {
 		s.logger.Error("failed to take token", zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())

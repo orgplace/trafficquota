@@ -17,13 +17,25 @@ You can check whether the request conforms to defined limits on rate and burstin
 go run ./cmd/trafficquotad
 ```
 
-```sh
-grpc-health-probe -addr=localhost:3895
-```
-
 ### Using `trafficquotad` from Your Application
 
+After `go get github.com/orgplace/trafficquota/client`
+or `dep ensure -add github.com/orgplace/trafficquota/client`:
+
 ```go
+import "github.com/orgplace/trafficquota/client"
+
 c, _ := client.NewInsecureClient("localhost:3895")
 allowed, _ := c.Take("key")
+```
+
+Please see `examples` directory and godoc for more detail.
+
+## Health Checking
+
+`trafficquotad` supports [gRPC Health Checking Protocol](https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+You can query health of the server using [grpc-health-probe](https://github.com/grpc-ecosystem/grpc-health-probe).
+
+```sh
+grpc-health-probe -addr=localhost:3895
 ```

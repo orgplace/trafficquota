@@ -1,3 +1,4 @@
+// Package server implements a TrafficQuotaServer.
 package server
 
 import (

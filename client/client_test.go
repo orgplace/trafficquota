@@ -173,7 +173,10 @@ func Test_client_Ping(t *testing.T) {
 			ctrl := gomock.NewController(t)
 
 			mockHealth := NewMockHealthClient(ctrl)
-			mockHealth.EXPECT().Check(context.Background(), nil).Return(tt.checkCall.res, tt.checkCall.err)
+			mockHealth.EXPECT().Check(
+				context.Background(),
+				&grpc_health_v1.HealthCheckRequest{},
+			).Return(tt.checkCall.res, tt.checkCall.err)
 
 			c := &client{
 				health: mockHealth,

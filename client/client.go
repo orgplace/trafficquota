@@ -91,7 +91,7 @@ func (c *client) Ping() error {
 }
 
 func (c *client) PingContext(ctx context.Context) error {
-	res, err := c.health.Check(ctx, nil)
+	res, err := c.health.Check(ctx, &grpc_health_v1.HealthCheckRequest{})
 	if err != nil {
 		return err
 	}

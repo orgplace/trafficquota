@@ -29,7 +29,7 @@ c, _ := client.NewInsecureClient("localhost:3895")
 allowed, _ := c.Take("key")
 ```
 
-Please see `examples` directory and godoc for more detail.
+Please see [examples directory](examples) and [godoc](https://godoc.org/github.com/orgplace/trafficquota/client) for more detail.
 
 ## Health Checking
 

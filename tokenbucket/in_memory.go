@@ -42,6 +42,7 @@ func (tb *inMemoryTokenBucket) Take(partitionKey string, clusteringKeys []string
 		b.mu.RLock()
 		if b.expunged {
 			b.mu.RUnlock()
+			tb.m.Delete(partitionKey)
 			continue
 		}
 
@@ -83,6 +84,7 @@ func (b *buckets) fill() bool {
 		for {
 			current := atomic.LoadInt32(p)
 			if current == expungedBucket {
+				b.m.Delete(key)
 				break
 			}
 
@@ -132,6 +134,7 @@ LOAD_OR_NEW_LOOP:
 		for {
 			current := atomic.LoadInt32(value)
 			if current == expungedBucket {
+				b.m.Delete(clusteringKey)
 				continue LOAD_OR_NEW_LOOP
 			}
 
@@ -158,8 +161,9 @@ func (b *buckets) loadOrStore(clusteringKey string, newValue *int32) (*int32, bo
 		}
 
 		value := p.(*int32)
-		current := atomic.LoadInt32(value)
-		if current != expungedBucket {
+		if atomic.LoadInt32(value) == expungedBucket {
+			b.m.Delete(clusteringKey)
+		} else {
 			return value, true
 		}
 	}

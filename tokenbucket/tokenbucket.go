@@ -17,14 +17,14 @@ const (
 // Config is a configuration of TokenBucket.
 type Config interface {
 	// Rate returns a number of filled tokens.
-	Rate(partitionKey, clusteringKey string) int32
+	Rate(partitionKey, chunkKey string) int32
 	// Overflow returns true when .
-	Overflow(partitionKey, clusteringKey string, tokens int32) bool
+	Overflow(partitionKey, chunkKey string, tokens int32) bool
 }
 
 // TokenBucket is an algorithm used to control network traffic.
 // This interface provices goroutine-safe methods.
 type TokenBucket interface {
 	Fill()
-	Take(partitionKey string, clusteringKeys []string) (bool, error)
+	Take(partitionKey string, chunkKeys []string) (bool, error)
 }

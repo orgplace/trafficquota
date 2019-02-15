@@ -11,7 +11,7 @@ service TrafficQuota {
 
 message TakeRequest {
     string partition_key = 1;
-    repeated string clustering_keys = 2;
+    repeated string chunk_keys = 2;
 }
 
 message TakeResponse {

@@ -36,7 +36,7 @@ func main() {
 		{
 			n:              tokenbucket.DefaultBucketSize * 5,
 			partitionKey:   "tenant1",
-			clusteringKeys: []string{""},
+			chunkKeys: []string{""},
 		},
 		{
 			n:            tokenbucket.DefaultBucketSize * 5,
@@ -45,12 +45,12 @@ func main() {
 		{
 			n:              tokenbucket.DefaultBucketSize * 5 / 2,
 			partitionKey:   "tenant3",
-			clusteringKeys: []string{"operationA"},
+			chunkKeys: []string{"operationA"},
 		},
 		{
 			n:              tokenbucket.DefaultBucketSize * 5 / 2,
 			partitionKey:   "tenant3",
-			clusteringKeys: []string{"operationA", "operationB"},
+			chunkKeys: []string{"operationA", "operationB"},
 		},
 	}
 
@@ -70,7 +70,7 @@ func main() {
 type testcase struct {
 	n              int32
 	partitionKey   string
-	clusteringKeys []string
+	chunkKeys []string
 	results        chan *result
 }
 
@@ -93,7 +93,7 @@ func printResults(tc *testcase) {
 
 	sort.Slice(durations, func(i, j int) bool { return durations[i] < durations[j] })
 
-	fmt.Printf("partitionKey: %s, clusteringKeys: %s\n", tc.partitionKey, tc.clusteringKeys)
+	fmt.Printf("partitionKey: %s, chunkKeys: %s\n", tc.partitionKey, tc.chunkKeys)
 
 	fmt.Printf("allow: %d, deny: %d\n", allow, tc.n-allow)
 
@@ -111,7 +111,7 @@ func burst(logger *zap.Logger, c client.Client, tc *testcase) {
 	for i := int32(0); i < tc.n; i++ {
 		go func() {
 			t := time.Now()
-			res, err := c.Take(tc.partitionKey, tc.clusteringKeys...)
+			res, err := c.Take(tc.partitionKey, tc.chunkKeys...)
 			d := time.Since(t)
 			if err != nil {
 				logger.Panic("failed to take token", zap.Error(err))

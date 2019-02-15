@@ -34,7 +34,7 @@ func (tb *inMemoryTokenBucket) Fill() {
 	})
 }
 
-func (tb *inMemoryTokenBucket) Take(partitionKey string, clusteringKeys []string) (bool, error) {
+func (tb *inMemoryTokenBucket) Take(partitionKey string, chunkKeys []string) (bool, error) {
 	newValue := newBuckets()
 	for {
 		value, _ := tb.m.LoadOrStore(partitionKey, newValue)
@@ -47,8 +47,8 @@ func (tb *inMemoryTokenBucket) Take(partitionKey string, clusteringKeys []string
 			continue
 		}
 
-		for _, clusteringKey := range clusteringKeys {
-			if ok := b.take(tb.config, partitionKey, clusteringKey); !ok {
+		for _, chunkKey := range chunkKeys {
+			if ok := b.take(tb.config, partitionKey, chunkKey); !ok {
 				b.mu.RUnlock()
 				return false, nil
 			}
@@ -122,11 +122,11 @@ func (b *buckets) empty() bool {
 	return empty
 }
 
-func (b *buckets) take(config Config, partitionKey, clusteringKey string) bool {
+func (b *buckets) take(config Config, partitionKey, chunkKey string) bool {
 	newValue := new(int32) // Starts from 0
 LOAD_OR_NEW_LOOP:
 	for {
-		value, loaded := b.loadOrStore(clusteringKey, newValue)
+		value, loaded := b.loadOrStore(chunkKey, newValue)
 		if !loaded {
 			return true
 		}
@@ -134,12 +134,12 @@ LOAD_OR_NEW_LOOP:
 		for {
 			current := atomic.LoadInt32(value)
 			if current == expungedBucket {
-				b.m.Delete(clusteringKey)
+				b.m.Delete(chunkKey)
 				continue LOAD_OR_NEW_LOOP
 			}
 
 			next := current + 1
-			if config.Overflow(partitionKey, clusteringKey, next+1) {
+			if config.Overflow(partitionKey, chunkKey, next+1) {
 				return false
 			}
 
@@ -150,16 +150,16 @@ LOAD_OR_NEW_LOOP:
 	}
 }
 
-func (b *buckets) loadOrStore(clusteringKey string, newValue *int32) (*int32, bool) {
+func (b *buckets) loadOrStore(chunkKey string, newValue *int32) (*int32, bool) {
 	for {
-		p, loaded := b.m.LoadOrStore(clusteringKey, newValue)
+		p, loaded := b.m.LoadOrStore(chunkKey, newValue)
 		if !loaded {
 			return newValue, false
 		}
 
 		value := p.(*int32)
 		if atomic.LoadInt32(value) == expungedBucket {
-			b.m.Delete(clusteringKey)
+			b.m.Delete(chunkKey)
 		} else {
 			return value, true
 		}

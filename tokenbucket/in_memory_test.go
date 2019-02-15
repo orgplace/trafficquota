@@ -50,7 +50,7 @@ func TestInMemoryTokenBucket_Take(t *testing.T) {
 			for _, req := range tt.params.requests {
 				tb.Fill()
 				for i := int32(0); i < req; i++ {
-					ok, _ := tb.Take("partitionKey", []string{"clusteringKey"})
+					ok, _ := tb.Take("partitionKey", []string{"chunkKey"})
 					if (seq == tt.params.notConformantAt) == ok {
 						t.Errorf("Unexpected conformant: %d", seq)
 					}
@@ -69,10 +69,10 @@ func TestInMemoryTokenBucket_Take_expunged(t *testing.T) {
 	expungedBuckets := newBuckets()
 	expungedValue := DefaultBucketSize
 	expungedBuckets.expunged = true
-	expungedBuckets.m.Store("clusteringKey", expungedValue)
+	expungedBuckets.m.Store("chunkKey", expungedValue)
 	tb.m.Store("partitionKey", expungedBuckets)
 
-	ok, _ := tb.Take("partitionKey", []string{"clusteringKey"})
+	ok, _ := tb.Take("partitionKey", []string{"chunkKey"})
 	if !ok {
 		t.Error("could not take a token")
 	}

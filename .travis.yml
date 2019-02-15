@@ -6,7 +6,7 @@ services:
 - docker
 
 script:
-- go test -race -coverprofile=profile.out -covermode=atomic -parallel 2 ./...
+- go test -race -coverprofile=coverage.txt -covermode=atomic -parallel 2 ./...
 - docker build -t orgplace/trafficquota .
 - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 - docker push orgplace/trafficquota

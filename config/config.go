@@ -16,16 +16,13 @@ var (
 )
 
 func init() {
-	g := configGetter(os.Getenv)
-	LogLevel = g.getLogLevel("LOG_LEVEL")
+	LogLevel = getLogLevel("LOG_LEVEL")
 
-	Listen = g.getEnv("LISTEN", "0.0.0.0:3895")
+	Listen = getEnv("LISTEN", "0.0.0.0:3895")
 }
 
-type configGetter func(string) string
-
-func (g configGetter) getLogLevel(key string) zapcore.Level {
-	val := g(key)
+func getLogLevel(key string) zapcore.Level {
+	val := os.Getenv(key)
 	if val == "" {
 		return zapcore.DebugLevel
 	}
@@ -37,8 +34,8 @@ func (g configGetter) getLogLevel(key string) zapcore.Level {
 	return l
 }
 
-func (g configGetter) getEnv(key, def string) string {
-	val := g(key)
+func getEnv(key, def string) string {
+	val := os.Getenv(key)
 	if val == "" {
 		return def
 	}

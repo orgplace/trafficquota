@@ -56,7 +56,7 @@ func main() {
 func buildGRPCServer(logger *zap.Logger) *grpc.Server {
 	s := grpc.NewServer(buildGRPCServerOptions(logger)...)
 
-	tb := tokenbucket.NewInMemoryTokenBucket()
+	tb := tokenbucket.NewInMemoryTokenBucket(tokenbucket.DefaultConfig)
 	go func() {
 		c := time.Tick(tokenbucket.DefaultInterval)
 		for range c {

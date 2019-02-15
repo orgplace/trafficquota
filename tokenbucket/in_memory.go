@@ -4,23 +4,24 @@ import (
 	"math"
 	"sync"
 	"sync/atomic"
-	"time"
 )
 
 type inMemoryTokenBucket struct {
+	config Config
+
 	m sync.Map
 }
 
 // NewInMemoryTokenBucket constructs a in-memory TokenBucket
-func NewInMemoryTokenBucket() TokenBucket {
-	return &inMemoryTokenBucket{}
+func NewInMemoryTokenBucket(config Config) TokenBucket {
+	return &inMemoryTokenBucket{config: config}
 }
 
 func (tb *inMemoryTokenBucket) Fill() {
 	tb.m.Range(func(key, value interface{}) bool {
 		b := value.(*buckets)
 
-		if b.fill() {
+		if b.fill(tb.config, key.(string)) {
 			b.mu.Lock()
 			if b.empty() {
 				b.expunged = true
@@ -47,7 +48,7 @@ func (tb *inMemoryTokenBucket) Take(partitionKey string, clusteringKeys []string
 		}
 
 		for _, clusteringKey := range clusteringKeys {
-			if ok := b.take(partitionKey, clusteringKey); !ok {
+			if ok := b.take(tb.config, partitionKey, clusteringKey); !ok {
 				b.mu.RUnlock()
 				return false, nil
 			}
@@ -75,8 +76,7 @@ func newBuckets() *buckets {
 // After swap to this value, the bucket must be deleted from buckets.
 const expungedBucket = int32(math.MinInt32)
 
-func (b *buckets) fill() bool {
-	n := int32(DefaultRate / int32(time.Second/DefaultInterval))
+func (b *buckets) fill(config Config, partitionKey string) bool {
 	empty := true
 	b.m.Range(func(key, value interface{}) bool {
 		p := value.(*int32)
@@ -88,7 +88,7 @@ func (b *buckets) fill() bool {
 				break
 			}
 
-			next := current - n
+			next := current - config.Rate(partitionKey, key.(string))
 			if next < 0 {
 				if atomic.CompareAndSwapInt32(p, current, expungedBucket) {
 					b.m.Delete(key)
@@ -122,8 +122,8 @@ func (b *buckets) empty() bool {
 	return empty
 }
 
-func (b *buckets) take(partitionKey, clusteringKey string) bool {
-	newValue := new(int32)
+func (b *buckets) take(config Config, partitionKey, clusteringKey string) bool {
+	newValue := new(int32) // Starts from 0
 LOAD_OR_NEW_LOOP:
 	for {
 		value, loaded := b.loadOrStore(clusteringKey, newValue)
@@ -139,11 +139,8 @@ LOAD_OR_NEW_LOOP:
 			}
 
 			next := current + 1
-			if DefaultBucketSize <= next {
-				// TODO: load configured size
-				//if configuredBucketSize <= current {
+			if config.Overflow(partitionKey, clusteringKey, next+1) {
 				return false
-				//}
 			}
 
 			if atomic.CompareAndSwapInt32(value, current, next) {

@@ -8,10 +8,10 @@ import (
 func TestInMemoryTokenBucket_Take(t *testing.T) {
 	t.Parallel()
 
-	filledPerInterval := DefaultRate / int(time.Second/DefaultInterval)
+	filledPerInterval := DefaultRate / int32(time.Second/DefaultInterval)
 
 	type params struct {
-		requests        []int
+		requests        []int32
 		notConformantAt int
 	}
 	tests := []struct {
@@ -21,22 +21,22 @@ func TestInMemoryTokenBucket_Take(t *testing.T) {
 		{
 			"burst",
 			params{
-				requests:        []int{DefaultBucketSize + 1},
-				notConformantAt: DefaultBucketSize + 1,
+				requests:        []int32{DefaultBucketSize + 1},
+				notConformantAt: int(DefaultBucketSize) + 1,
 			},
 		},
 		{
 			"rate",
 			params{
-				requests:        []int{DefaultBucketSize, filledPerInterval + 1},
-				notConformantAt: DefaultBucketSize + filledPerInterval + 1,
+				requests:        []int32{DefaultBucketSize, filledPerInterval + 1},
+				notConformantAt: int(DefaultBucketSize+filledPerInterval) + 1,
 			},
 		},
 		{
 			"fully filled",
 			params{
-				requests:        []int{1, DefaultBucketSize + 1},
-				notConformantAt: DefaultBucketSize + 2,
+				requests:        []int32{1, DefaultBucketSize + 1},
+				notConformantAt: int(DefaultBucketSize) + 2,
 			},
 		},
 	}
@@ -44,12 +44,12 @@ func TestInMemoryTokenBucket_Take(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			tb := NewInMemoryTokenBucket()
+			tb := NewInMemoryTokenBucket(DefaultConfig)
 
 			seq := 1
 			for _, req := range tt.params.requests {
 				tb.Fill()
-				for i := 0; i < req; i++ {
+				for i := int32(0); i < req; i++ {
 					ok, _ := tb.Take("partitionKey", []string{"clusteringKey"})
 					if (seq == tt.params.notConformantAt) == ok {
 						t.Errorf("Unexpected conformant: %d", seq)
@@ -86,7 +86,7 @@ func TestBuckets_fill_expunged(t *testing.T) {
 	expungedValue := int32(expungedBucket)
 	buckets.m.Store("clustringKey", &expungedValue)
 
-	if !buckets.fill() {
+	if !buckets.fill(DefaultConfig, "partitionKey") {
 		t.Error("buckets must be empty")
 	}
 }
@@ -124,7 +124,7 @@ func TestBuckets_take_expunged(t *testing.T) {
 	expungedValue := int32(expungedBucket)
 	buckets.m.Store("clustringKey", &expungedValue)
 
-	if !buckets.take("", "clustringKey") {
+	if !buckets.take(DefaultConfig, "", "clustringKey") {
 		t.Error("token must be taken")
 	}
 }

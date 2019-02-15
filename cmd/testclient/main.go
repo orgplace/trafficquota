@@ -68,7 +68,7 @@ func main() {
 }
 
 type testcase struct {
-	n              int
+	n              int32
 	partitionKey   string
 	clusteringKeys []string
 	results        chan *result
@@ -80,10 +80,10 @@ type result struct {
 }
 
 func printResults(tc *testcase) {
-	allow := 0
+	allow := int32(0)
 	durations := make([]time.Duration, tc.n)
 
-	for i := 0; i < tc.n; i++ {
+	for i := int32(0); i < tc.n; i++ {
 		r := <-tc.results
 		if r.allowed {
 			allow++
@@ -108,7 +108,7 @@ func printResults(tc *testcase) {
 }
 
 func burst(logger *zap.Logger, c client.Client, tc *testcase) {
-	for i := 0; i < tc.n; i++ {
+	for i := int32(0); i < tc.n; i++ {
 		go func() {
 			t := time.Now()
 			res, err := c.Take(tc.partitionKey, tc.clusteringKeys...)

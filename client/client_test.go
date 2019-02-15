@@ -15,6 +15,8 @@ import (
 //go:generate mockgen -destination=mock_grpc_health_v1_test.go -package=${GOPACKAGE} google.golang.org/grpc/health/grpc_health_v1 HealthClient
 
 func Test_newClient(t *testing.T) {
+	t.Parallel()
+
 	cc := &grpc.ClientConn{}
 	want := &client{
 		clientConn:   cc,
@@ -27,6 +29,8 @@ func Test_newClient(t *testing.T) {
 }
 
 func Test_parseAddr(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		addr        string
 		wantAddr    string
@@ -45,6 +49,8 @@ func Test_parseAddr(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.addr, func(t *testing.T) {
+			t.Parallel()
+
 			gotAddr, gotOptions := parseAddr(tt.addr)
 			if gotAddr != tt.wantAddr {
 				t.Errorf("parseAddr() gotAddr = %v, wantAddr %v", gotAddr, tt.wantAddr)
@@ -57,6 +63,8 @@ func Test_parseAddr(t *testing.T) {
 }
 
 func Test_client_Take(t *testing.T) {
+	t.Parallel()
+
 	type args struct {
 		partitionKey   string
 		clusteringKeys []string
@@ -108,6 +116,8 @@ func Test_client_Take(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			ctrl := gomock.NewController(t)
 
 			mockTrafficQuota := proto.NewMockTrafficQuotaClient(ctrl)
@@ -134,6 +144,8 @@ func Test_client_Take(t *testing.T) {
 }
 
 func Test_client_Ping(t *testing.T) {
+	t.Parallel()
+
 	type checkCall struct {
 		res *grpc_health_v1.HealthCheckResponse
 		err error
@@ -170,6 +182,8 @@ func Test_client_Ping(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			ctrl := gomock.NewController(t)
 
 			mockHealth := NewMockHealthClient(ctrl)

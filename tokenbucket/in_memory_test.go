@@ -6,6 +6,8 @@ import (
 )
 
 func TestInMemoryTokenBucket_Take(t *testing.T) {
+	t.Parallel()
+
 	filledPerInterval := DefaultRate / int(time.Second/DefaultInterval)
 
 	type params struct {
@@ -40,6 +42,8 @@ func TestInMemoryTokenBucket_Take(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			tb := NewInMemoryTokenBucket()
 
 			seq := 1
@@ -58,6 +62,8 @@ func TestInMemoryTokenBucket_Take(t *testing.T) {
 }
 
 func TestInMemoryTokenBucket_Take_expunged(t *testing.T) {
+	t.Parallel()
+
 	tb := &inMemoryTokenBucket{}
 
 	expungedBuckets := newBuckets()
@@ -73,6 +79,8 @@ func TestInMemoryTokenBucket_Take_expunged(t *testing.T) {
 }
 
 func TestBuckets_fill_expunged(t *testing.T) {
+	t.Parallel()
+
 	buckets := newBuckets()
 
 	expungedValue := int32(expungedBucket)
@@ -84,6 +92,8 @@ func TestBuckets_fill_expunged(t *testing.T) {
 }
 
 func TestBuckets_empty_not_empty(t *testing.T) {
+	t.Parallel()
+
 	buckets := newBuckets()
 
 	buckets.m.Store("clustringKey", new(int32))
@@ -94,6 +104,8 @@ func TestBuckets_empty_not_empty(t *testing.T) {
 }
 
 func TestBuckets_empty_expunged(t *testing.T) {
+	t.Parallel()
+
 	buckets := newBuckets()
 
 	expungedValue := int32(expungedBucket)
@@ -105,6 +117,8 @@ func TestBuckets_empty_expunged(t *testing.T) {
 }
 
 func TestBuckets_take_expunged(t *testing.T) {
+	t.Parallel()
+
 	buckets := newBuckets()
 
 	expungedValue := int32(expungedBucket)

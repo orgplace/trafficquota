@@ -8,8 +8,6 @@ services:
 install: true
 
 script:
-# Generated code must be commited
-- "go generate ./... && git diff --stat --exit-code"
 # Test and output coverage
 - "go test -race -coverprofile=coverage.txt -covermode=atomic -parallel 2 ./..."
 # Build executable

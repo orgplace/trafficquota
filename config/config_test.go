@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-func Test_configGetter_getLogLevel(t *testing.T) {
+func Test_getLogLevel(t *testing.T) {
 	tests := []struct {
 		name  string
 		key   string
@@ -38,7 +38,7 @@ func Test_configGetter_getLogLevel(t *testing.T) {
 	}
 }
 
-func Test_configGetter_getLogLevel_invalid(t *testing.T) {
+func Test_getLogLevel_invalid(t *testing.T) {
 	os.Setenv("LOG_LEVEL", "invalid log level")
 
 	var err interface{}
@@ -54,7 +54,7 @@ func Test_configGetter_getLogLevel_invalid(t *testing.T) {
 	}
 }
 
-func Test_configGetter_getEnv(t *testing.T) {
+func Test_getEnv(t *testing.T) {
 	tests := []struct {
 		name         string
 		key          string

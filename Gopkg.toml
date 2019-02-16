@@ -45,3 +45,7 @@
   go-tests = true
   unused-packages = true
 
+
+[[constraint]]
+  name = "github.com/BurntSushi/toml"
+  version = "0.3.1"

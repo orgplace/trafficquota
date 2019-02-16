@@ -1,0 +1,19 @@
+[tokenBucket]
+interval = "20ms"
+
+[tokenBucket.default]
+
+size = 30
+rate = 150
+
+[tokenBucket.chunks.tenant2.default]
+size = 20
+rate = 100
+
+[tokenBucket.chunks.tenant3.default]
+size = 40
+rate = 200
+
+[tokenBucket.chunks.tenant3.buckets.operationB]
+size = 10
+rate = 50

@@ -8,6 +8,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/BurntSushi/toml"
+
 	"github.com/orgplace/trafficquota/config"
 	"github.com/orgplace/trafficquota/server"
 	"github.com/orgplace/trafficquota/tokenbucket"
@@ -36,7 +38,10 @@ func main() {
 	}
 	defer logger.Sync()
 
-	server := buildGRPCServer(logger)
+	server, err := buildGRPCServer(logger)
+	if err != nil {
+		logger.Panic("failed to build server", zap.Error(err))
+	}
 
 	if err := listenAndServe(logger, server, config.Listen); err != nil {
 		logger.Panic("failed to start the server", zap.Error(err))
@@ -53,10 +58,17 @@ func main() {
 	server.GracefulStop()
 }
 
-func buildGRPCServer(logger *zap.Logger) *grpc.Server {
+func buildGRPCServer(logger *zap.Logger) (*grpc.Server, error) {
 	s := grpc.NewServer(buildGRPCServerOptions(logger)...)
 
-	tb := tokenbucket.NewInMemoryTokenBucket(tokenbucket.DefaultConfig)
+	configFile, err := loadConfigFile(logger)
+	if err != nil {
+		return nil, err
+	}
+
+	tb := tokenbucket.NewInMemoryTokenBucket(
+		tokenbucket.NewFixedConfig(configFile.TokenBucket.AsOption()),
+	)
 	go func() {
 		c := time.Tick(tokenbucket.DefaultInterval)
 		for range c {
@@ -69,7 +81,20 @@ func buildGRPCServer(logger *zap.Logger) *grpc.Server {
 		logger, tb,
 	))
 
-	return s
+	return s, nil
+}
+
+func loadConfigFile(logger *zap.Logger) (*config.FileContent, error) {
+	var result config.FileContent
+	switch _, err := toml.DecodeFile(config.ConfigFilePath, &result); err.(type) {
+	case *os.PathError:
+		logger.Debug("default configuration is used", zap.Error(err))
+		return &result, nil
+	case nil:
+		return &result, nil
+	default:
+		return nil, err
+	}
 }
 
 func buildGRPCServerOptions(logger *zap.Logger) []grpc.ServerOption {

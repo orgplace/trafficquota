@@ -78,9 +78,9 @@ func minInt32(a, b int32) int32 {
 }
 
 func buildFixedChunkSizeConfig(o *ChunkOption, defaultSize int32) (*fixedChunkSizeConfig, int32) {
-	bucketSize := make(map[string]int32, len(o.Chunk))
+	bucketSize := make(map[string]int32, len(o.Buckets))
 	minSize := defaultSize
-	for k, v := range o.Chunk {
+	for k, v := range o.Buckets {
 		s := v.getSize(defaultSize)
 		if s == defaultSize {
 			continue
@@ -98,8 +98,8 @@ func buildFixedChunkSizeConfig(o *ChunkOption, defaultSize int32) (*fixedChunkSi
 }
 
 func buildFixedChunkRateConfig(o *ChunkOption, interval time.Duration, defaultRate int32) *fixedChunkRateConfig {
-	bucketRate := make(map[string]int32, len(o.Chunk))
-	for k, v := range o.Chunk {
+	bucketRate := make(map[string]int32, len(o.Buckets))
+	for k, v := range o.Buckets {
 		bucketRate[k] = toFilled(v.Rate, interval)
 	}
 

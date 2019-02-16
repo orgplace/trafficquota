@@ -50,7 +50,7 @@ func main() {
 		{
 			n:          tokenbucket.DefaultBucketSize * 5 / 2,
 			chunkKey:   "tenant3",
-			bucketKeys: []string{"operationA", "operationB"},
+			bucketKeys: []string{"operationB", "operationA"},
 		},
 	}
 

@@ -20,7 +20,7 @@ func (o *Option) getInterval() time.Duration {
 // ChunkOption is an option of chunk
 type ChunkOption struct {
 	Default BucketOption
-	Chunk   map[string]*BucketOption
+	Buckets map[string]*BucketOption
 }
 
 // BucketOption is an option of bucket
@@ -31,8 +31,11 @@ type BucketOption struct {
 	// Otherwise, the default size is used.
 	Banned bool
 	// Size is size of the bucket.
+	// Default value is uesed when this value is 0
+	// and this bucket is not banned.
 	Size int32
 	// Rate is rate of the bucket per second.
+	// Default value is uesed when this value is 0.
 	Rate int32
 }
 

@@ -10,15 +10,18 @@ var (
 	// LogLevel is a log level.
 	LogLevel zapcore.Level
 
-	// Listen is address to listen.
+	// Listen is an address to listen.
 	// It is must be host:port or unix:/path/of/sock .
 	Listen string
+
+	// ConfigFilePath is a path to the configuration file.
+	ConfigFilePath string
 )
 
 func init() {
 	LogLevel = getLogLevel("LOG_LEVEL")
-
 	Listen = getEnv("LISTEN", "0.0.0.0:3895")
+	ConfigFilePath = getEnv("CONFIG_FILE_PATH", "/etc/trafficquota.toml")
 }
 
 func getLogLevel(key string) zapcore.Level {

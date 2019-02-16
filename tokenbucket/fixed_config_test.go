@@ -72,7 +72,7 @@ func Test_fixedConfig_Overflow(t *testing.T) {
 			option: Option{
 				Chunks: map[string]*ChunkOption{
 					"chunkKey": &ChunkOption{
-						Chunk: map[string]*BucketOption{
+						Buckets: map[string]*BucketOption{
 							"bucketKey":  &BucketOption{Size: 1},
 							"bucketKey2": &BucketOption{Size: 2},
 						},
@@ -90,7 +90,7 @@ func Test_fixedConfig_Overflow(t *testing.T) {
 			option: Option{
 				Chunks: map[string]*ChunkOption{
 					"chunkKey": &ChunkOption{
-						Chunk: map[string]*BucketOption{
+						Buckets: map[string]*BucketOption{
 							"bucketKey": &BucketOption{Size: 1},
 						},
 					},
@@ -168,7 +168,7 @@ func Test_fixedConfig_Rate(t *testing.T) {
 			option: Option{
 				Chunks: map[string]*ChunkOption{
 					"chunkKey": &ChunkOption{
-						Chunk: map[string]*BucketOption{
+						Buckets: map[string]*BucketOption{
 							"bucketKey": &BucketOption{Rate: onePerInterval},
 						},
 					},

@@ -18,17 +18,7 @@ func Test_fixedConfig_Overflow(t *testing.T) {
 		want   bool
 	}{
 		{
-			name: "empty",
-		},
-		{
-			name: "over empty",
-			args: args{
-				tokens: 1,
-			},
-			want: true,
-		},
-		{
-			name: "node default",
+			name: "default",
 			option: Option{
 				Default: BucketOption{Size: 1},
 			},
@@ -37,7 +27,7 @@ func Test_fixedConfig_Overflow(t *testing.T) {
 			},
 		},
 		{
-			name: "over node default",
+			name: "over default",
 			option: Option{
 				Default: BucketOption{Size: 1},
 			},
@@ -49,6 +39,7 @@ func Test_fixedConfig_Overflow(t *testing.T) {
 		{
 			name: "chunk default",
 			option: Option{
+				Default: BucketOption{Size: 1},
 				Chunks: map[string]*ChunkOption{
 					"chunkKey": &ChunkOption{
 						Default: BucketOption{Size: 1},
@@ -63,17 +54,16 @@ func Test_fixedConfig_Overflow(t *testing.T) {
 		{
 			name: "over chunk default",
 			option: Option{
+				Default: BucketOption{Size: 2},
 				Chunks: map[string]*ChunkOption{
 					"chunkKey": &ChunkOption{
-						Chunk: map[string]*BucketOption{
-							"bucketKey": &BucketOption{Size: 1},
-						},
+						Default: BucketOption{Size: 1},
 					},
 				},
 			},
 			args: args{
 				chunkKey: "chunkKey",
-				tokens:   1,
+				tokens:   2,
 			},
 			want: true,
 		},

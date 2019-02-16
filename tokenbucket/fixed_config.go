@@ -13,7 +13,7 @@ type fixedConfig struct {
 }
 
 type fixedChunkSizeConfig struct {
-	defultSize    int32
+	defaultSize   int32
 	bucketSize    map[string]int32
 	minBucketSize int32
 }
@@ -21,6 +21,16 @@ type fixedChunkSizeConfig struct {
 type fixedChunkRateConfig struct {
 	defultRate int32
 	bucketRate map[string]int32
+}
+
+func (o *BucketOption) getSize(def int32) int32 {
+	if o.Banned {
+		return 0
+	}
+	if o.Size == 0 {
+		return def
+	}
+	return o.Size
 }
 
 // NewFixedConfig constructs a new configuration.
@@ -31,19 +41,17 @@ func NewFixedConfig(o *Option) Config {
 		interval = DefaultInterval
 	}
 
-	defaultSize := int32(0)
-	if !o.Default.Banned {
-		defaultSize = o.Default.Size
-	}
+	defaultSize := o.Default.getSize(DefaultBucketSize)
 
 	n := len(o.Chunks)
 	chunkSize := make(map[string]*fixedChunkSizeConfig, n)
 	minChunkSize := defaultSize
 	chunkRate := make(map[string]*fixedChunkRateConfig, n)
 	for k, v := range o.Chunks {
-		cs, min := buildFixedChunkSizeConfig(v, o.Default.Banned)
+		cs, min := buildFixedChunkSizeConfig(v, v.Default.getSize(defaultSize))
 		chunkSize[k] = cs
 		minChunkSize = minInt32(minChunkSize, min)
+
 		chunkRate[k] = buildFixedChunkRateConfig(v, interval)
 	}
 
@@ -64,25 +72,17 @@ func minInt32(a, b int32) int32 {
 	return b
 }
 
-func buildFixedChunkSizeConfig(o *ChunkOption, bannedDefault bool) (*fixedChunkSizeConfig, int32) {
-	defultSize := int32(0)
-	if !bannedDefault {
-		defultSize = o.Default.Size
-	}
-
+func buildFixedChunkSizeConfig(o *ChunkOption, defaultSize int32) (*fixedChunkSizeConfig, int32) {
 	bucketSize := make(map[string]int32, len(o.Chunk))
-	minSize := defultSize
+	minSize := defaultSize
 	for k, v := range o.Chunk {
-		s := int32(0)
-		if !v.Banned {
-			s = v.Size
-		}
+		s := v.getSize(defaultSize)
 		bucketSize[k] = s
 		minSize = minInt32(minSize, s)
 	}
 
 	return &fixedChunkSizeConfig{
-		defultSize:    defultSize,
+		defaultSize:   defaultSize,
 		bucketSize:    bucketSize,
 		minBucketSize: minSize,
 	}, minSize
@@ -116,7 +116,7 @@ func (c *fixedConfig) Overflow(chunkKey, bucketKey string, tokens int32) bool {
 
 	bucketSize, ok := chunkSize.bucketSize[bucketKey]
 	if !ok {
-		return chunkSize.defultSize < tokens
+		return chunkSize.defaultSize < tokens
 	}
 	return bucketSize < tokens
 }

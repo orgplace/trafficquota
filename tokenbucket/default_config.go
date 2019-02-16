@@ -8,9 +8,13 @@ type defaultConfig struct{}
 var DefaultConfig = defaultConfig{}
 
 func (c defaultConfig) Rate(_, _ string) int32 {
-	return DefaultRate / int32(time.Second/DefaultInterval)
+	return toFilled(DefaultRate, DefaultInterval)
 }
 
 func (c defaultConfig) Overflow(_, _ string, tokens int32) bool {
 	return DefaultBucketSize < tokens
+}
+
+func toFilled(filledPerSec int32, interval time.Duration) int32 {
+	return filledPerSec / int32(time.Second/interval)
 }

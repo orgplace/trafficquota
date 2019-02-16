@@ -26,7 +26,7 @@ deploy:
 # Send coverage to codecov
 - provider: script
   skip_cleanup: true
-  script: "bash <(curl -s https://codecov.io/bash)"
+  script: "bash ./scripts/ci_codecov.sh"
 # Push image to Docker Hub
 - provider: script
   script: "bash ./scripts/ci_docker_push.sh"

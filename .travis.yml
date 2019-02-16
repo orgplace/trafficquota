@@ -25,12 +25,18 @@ before_deploy:
 
 deploy:
 # Send coverage to codecov
-- provider: script
+- &deployCodecov
+  provider: script
   skip_cleanup: true
   script: "bash ./scripts/ci_codecov.sh"
-# Push image to Docker Hub
+  on:
+    condition: true
+    all_branches: true
+# Push image to Docker Hub (only master and tagged)
 - provider: script
   script: "bash ./scripts/ci_docker_push.sh"
+  on:
+    condition: true
 # Push image to Docker Hub (only tagged)
 - provider: script
   skip_cleanup: true

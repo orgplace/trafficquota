@@ -17,9 +17,9 @@ import (
 // Client is a client to access to token bucket server.
 type Client interface {
 	// Take takes tokens from server.
-	Take(partitionKey string, chunkKeys ...string) (bool, error)
+	Take(chunkKey string, bucketKeys ...string) (bool, error)
 	// TakeContext takes tokens from server.
-	TakeContext(ctx context.Context, partitionKey string, chunkKeys ...string) (bool, error)
+	TakeContext(ctx context.Context, chunkKey string, bucketKeys ...string) (bool, error)
 	// Ping verifies a connection to the server is still alive.
 	Ping() error
 	// PingContext verifies a connection to the server is still alive.
@@ -71,14 +71,14 @@ func parseAddr(addr string) (string, []grpc.DialOption) {
 	return addr, options
 }
 
-func (c *client) Take(partitionKey string, chunkKeys ...string) (bool, error) {
-	return c.TakeContext(context.Background(), partitionKey, chunkKeys...)
+func (c *client) Take(chunkKey string, bucketKeys ...string) (bool, error) {
+	return c.TakeContext(context.Background(), chunkKey, bucketKeys...)
 }
 
-func (c *client) TakeContext(ctx context.Context, partitionKey string, chunkKeys ...string) (bool, error) {
+func (c *client) TakeContext(ctx context.Context, chunkKey string, bucketKeys ...string) (bool, error) {
 	res, err := c.trafficQuota.Take(ctx, &proto.TakeRequest{
-		PartitionKey:   partitionKey,
-		ChunkKeys: chunkKeys,
+		ChunkKey:   chunkKey,
+		BucketKeys: bucketKeys,
 	})
 	if err != nil {
 		return false, err

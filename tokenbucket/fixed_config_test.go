@@ -7,9 +7,9 @@ import (
 
 func Test_fixedConfig_Overflow(t *testing.T) {
 	type args struct {
-		partitionKey string
-		chunkKey     string
-		tokens       int32
+		chunkKey  string
+		bucketKey string
+		tokens    int32
 	}
 	tests := []struct {
 		name   string
@@ -47,69 +47,69 @@ func Test_fixedConfig_Overflow(t *testing.T) {
 			want: true,
 		},
 		{
-			name: "partition default",
+			name: "chunk default",
 			option: Option{
-				Partitions: map[string]*ChunkOption{
-					"partitionKey": &ChunkOption{
+				Chunks: map[string]*ChunkOption{
+					"chunkKey": &ChunkOption{
 						Default: BucketOption{Size: 1},
 					},
 				},
 			},
 			args: args{
-				partitionKey: "partitionKey",
-				tokens:       1,
+				chunkKey: "chunkKey",
+				tokens:   1,
 			},
 		},
 		{
-			name: "over partition default",
+			name: "over chunk default",
 			option: Option{
-				Partitions: map[string]*ChunkOption{
-					"partitionKey": &ChunkOption{
-						Buckets: map[string]*BucketOption{
-							"chunkKey": &BucketOption{Size: 1},
+				Chunks: map[string]*ChunkOption{
+					"chunkKey": &ChunkOption{
+						Chunk: map[string]*BucketOption{
+							"bucketKey": &BucketOption{Size: 1},
 						},
 					},
 				},
 			},
 			args: args{
-				partitionKey: "partitionKey",
-				tokens:       1,
+				chunkKey: "chunkKey",
+				tokens:   1,
 			},
 			want: true,
 		},
 		{
 			name: "in bucket",
 			option: Option{
-				Partitions: map[string]*ChunkOption{
-					"partitionKey": &ChunkOption{
-						Buckets: map[string]*BucketOption{
-							"chunkKey":  &BucketOption{Size: 1},
-							"chunkKey2": &BucketOption{Size: 2},
+				Chunks: map[string]*ChunkOption{
+					"chunkKey": &ChunkOption{
+						Chunk: map[string]*BucketOption{
+							"bucketKey":  &BucketOption{Size: 1},
+							"bucketKey2": &BucketOption{Size: 2},
 						},
 					},
 				},
 			},
 			args: args{
-				partitionKey: "partitionKey",
-				chunkKey:     "chunkKey2",
-				tokens:       1,
+				chunkKey:  "chunkKey",
+				bucketKey: "bucketKey2",
+				tokens:    1,
 			},
 		},
 		{
 			name: "over bucket",
 			option: Option{
-				Partitions: map[string]*ChunkOption{
-					"partitionKey": &ChunkOption{
-						Buckets: map[string]*BucketOption{
-							"chunkKey": &BucketOption{Size: 1},
+				Chunks: map[string]*ChunkOption{
+					"chunkKey": &ChunkOption{
+						Chunk: map[string]*BucketOption{
+							"bucketKey": &BucketOption{Size: 1},
 						},
 					},
 				},
 			},
 			args: args{
-				partitionKey: "partitionKey",
-				chunkKey:     "chunkKey",
-				tokens:       1,
+				chunkKey:  "chunkKey",
+				bucketKey: "bucketKey",
+				tokens:    1,
 			},
 			want: false,
 		},
@@ -117,7 +117,7 @@ func Test_fixedConfig_Overflow(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := NewFixedConfig(&tt.option)
-			if got := c.Overflow(tt.args.partitionKey, tt.args.chunkKey, tt.args.tokens); got != tt.want {
+			if got := c.Overflow(tt.args.chunkKey, tt.args.bucketKey, tt.args.tokens); got != tt.want {
 				t.Errorf("fixedConfig.Overflow() = %v, want %v", got, tt.want)
 			}
 		})
@@ -128,8 +128,8 @@ func Test_fixedConfig_Rate(t *testing.T) {
 	const onePerInterval = int32(time.Second / DefaultInterval)
 
 	type args struct {
-		partitionKey string
-		chunkKey     string
+		chunkKey  string
+		bucketKey string
 	}
 	tests := []struct {
 		name   string
@@ -147,31 +147,31 @@ func Test_fixedConfig_Rate(t *testing.T) {
 		{
 			name: "chunk default",
 			option: Option{
-				Partitions: map[string]*ChunkOption{
-					"partitionKey": &ChunkOption{
+				Chunks: map[string]*ChunkOption{
+					"chunkKey": &ChunkOption{
 						Default: BucketOption{Rate: onePerInterval},
 					},
 				},
 			},
 			args: args{
-				partitionKey: "partitionKey",
+				chunkKey: "chunkKey",
 			},
 			want: 1,
 		},
 		{
 			name: "bucket rate",
 			option: Option{
-				Partitions: map[string]*ChunkOption{
-					"partitionKey": &ChunkOption{
-						Buckets: map[string]*BucketOption{
-							"chunkKey": &BucketOption{Rate: onePerInterval},
+				Chunks: map[string]*ChunkOption{
+					"chunkKey": &ChunkOption{
+						Chunk: map[string]*BucketOption{
+							"bucketKey": &BucketOption{Rate: onePerInterval},
 						},
 					},
 				},
 			},
 			args: args{
-				partitionKey: "partitionKey",
-				chunkKey:     "chunkKey",
+				chunkKey:  "chunkKey",
+				bucketKey: "bucketKey",
 			},
 			want: 1,
 		},
@@ -179,7 +179,7 @@ func Test_fixedConfig_Rate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := NewFixedConfig(&tt.option)
-			if got := c.Rate(tt.args.partitionKey, tt.args.chunkKey); got != tt.want {
+			if got := c.Rate(tt.args.chunkKey, tt.args.bucketKey); got != tt.want {
 				t.Errorf("fixedConfig.Rate() = %v, want %v", got, tt.want)
 			}
 		})

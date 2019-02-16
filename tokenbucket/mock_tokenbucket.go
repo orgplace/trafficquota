@@ -32,27 +32,27 @@ func (m *MockConfig) EXPECT() *MockConfigMockRecorder {
 }
 
 // Rate mocks base method
-func (m *MockConfig) Rate(partitionKey, chunkKey string) int32 {
-	ret := m.ctrl.Call(m, "Rate", partitionKey, chunkKey)
+func (m *MockConfig) Rate(chunkKey, bucketKey string) int32 {
+	ret := m.ctrl.Call(m, "Rate", chunkKey, bucketKey)
 	ret0, _ := ret[0].(int32)
 	return ret0
 }
 
 // Rate indicates an expected call of Rate
-func (mr *MockConfigMockRecorder) Rate(partitionKey, chunkKey interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Rate", reflect.TypeOf((*MockConfig)(nil).Rate), partitionKey, chunkKey)
+func (mr *MockConfigMockRecorder) Rate(chunkKey, bucketKey interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Rate", reflect.TypeOf((*MockConfig)(nil).Rate), chunkKey, bucketKey)
 }
 
 // Overflow mocks base method
-func (m *MockConfig) Overflow(partitionKey, chunkKey string, tokens int32) bool {
-	ret := m.ctrl.Call(m, "Overflow", partitionKey, chunkKey, tokens)
+func (m *MockConfig) Overflow(chunkKey, bucketKey string, tokens int32) bool {
+	ret := m.ctrl.Call(m, "Overflow", chunkKey, bucketKey, tokens)
 	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
 // Overflow indicates an expected call of Overflow
-func (mr *MockConfigMockRecorder) Overflow(partitionKey, chunkKey, tokens interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Overflow", reflect.TypeOf((*MockConfig)(nil).Overflow), partitionKey, chunkKey, tokens)
+func (mr *MockConfigMockRecorder) Overflow(chunkKey, bucketKey, tokens interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Overflow", reflect.TypeOf((*MockConfig)(nil).Overflow), chunkKey, bucketKey, tokens)
 }
 
 // MockTokenBucket is a mock of TokenBucket interface
@@ -89,14 +89,14 @@ func (mr *MockTokenBucketMockRecorder) Fill() *gomock.Call {
 }
 
 // Take mocks base method
-func (m *MockTokenBucket) Take(partitionKey string, chunkKeys []string) (bool, error) {
-	ret := m.ctrl.Call(m, "Take", partitionKey, chunkKeys)
+func (m *MockTokenBucket) Take(chunkKey string, bucketKeys []string) (bool, error) {
+	ret := m.ctrl.Call(m, "Take", chunkKey, bucketKeys)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Take indicates an expected call of Take
-func (mr *MockTokenBucketMockRecorder) Take(partitionKey, chunkKeys interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Take", reflect.TypeOf((*MockTokenBucket)(nil).Take), partitionKey, chunkKeys)
+func (mr *MockTokenBucketMockRecorder) Take(chunkKey, bucketKeys interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Take", reflect.TypeOf((*MockTokenBucket)(nil).Take), chunkKey, bucketKeys)
 }

@@ -19,7 +19,7 @@ func NewInMemoryTokenBucket(config Config) TokenBucket {
 
 func (tb *inMemoryTokenBucket) Fill() {
 	tb.m.Range(func(key, value interface{}) bool {
-		b := value.(*buckets)
+		b := value.(*chunk)
 
 		if b.fill(tb.config, key.(string)) {
 			b.mu.Lock()
@@ -34,21 +34,21 @@ func (tb *inMemoryTokenBucket) Fill() {
 	})
 }
 
-func (tb *inMemoryTokenBucket) Take(partitionKey string, chunkKeys []string) (bool, error) {
-	newValue := newBuckets()
+func (tb *inMemoryTokenBucket) Take(chunkKey string, bucketKeys []string) (bool, error) {
+	newValue := newChunk()
 	for {
-		value, _ := tb.m.LoadOrStore(partitionKey, newValue)
-		b := value.(*buckets)
+		value, _ := tb.m.LoadOrStore(chunkKey, newValue)
+		b := value.(*chunk)
 
 		b.mu.RLock()
 		if b.expunged {
 			b.mu.RUnlock()
-			tb.m.Delete(partitionKey)
+			tb.m.Delete(chunkKey)
 			continue
 		}
 
-		for _, chunkKey := range chunkKeys {
-			if ok := b.take(tb.config, partitionKey, chunkKey); !ok {
+		for _, bucketKey := range bucketKeys {
+			if ok := b.take(tb.config, chunkKey, bucketKey); !ok {
 				b.mu.RUnlock()
 				return false, nil
 			}
@@ -58,7 +58,7 @@ func (tb *inMemoryTokenBucket) Take(partitionKey string, chunkKeys []string) (bo
 	}
 }
 
-type buckets struct {
+type chunk struct {
 	// Map of [key] => [took token].
 	// Took token is start from 0.
 	// Then, ([took token] + 1) access was permitted.
@@ -68,15 +68,15 @@ type buckets struct {
 	expunged bool
 }
 
-func newBuckets() *buckets {
-	return &buckets{}
+func newChunk() *chunk {
+	return &chunk{}
 }
 
 // expungedBucket means that bucket was expunged.
-// After swap to this value, the bucket must be deleted from buckets.
+// After swap to this value, the bucket must be deleted from chunk.
 const expungedBucket = int32(math.MinInt32)
 
-func (b *buckets) fill(config Config, partitionKey string) bool {
+func (b *chunk) fill(config Config, chunkKey string) bool {
 	empty := true
 	b.m.Range(func(key, value interface{}) bool {
 		p := value.(*int32)
@@ -88,7 +88,7 @@ func (b *buckets) fill(config Config, partitionKey string) bool {
 				break
 			}
 
-			next := current - config.Rate(partitionKey, key.(string))
+			next := current - config.Rate(chunkKey, key.(string))
 			if next < 0 {
 				if atomic.CompareAndSwapInt32(p, current, expungedBucket) {
 					b.m.Delete(key)
@@ -105,7 +105,7 @@ func (b *buckets) fill(config Config, partitionKey string) bool {
 	return empty
 }
 
-func (b *buckets) empty() bool {
+func (b *chunk) empty() bool {
 	empty := true
 	b.m.Range(func(key, value interface{}) bool {
 		p := value.(*int32)
@@ -122,11 +122,11 @@ func (b *buckets) empty() bool {
 	return empty
 }
 
-func (b *buckets) take(config Config, partitionKey, chunkKey string) bool {
+func (b *chunk) take(config Config, chunkKey, bucketKey string) bool {
 	newValue := new(int32) // Starts from 0
 LOAD_OR_NEW_LOOP:
 	for {
-		value, loaded := b.loadOrStore(chunkKey, newValue)
+		value, loaded := b.loadOrStore(bucketKey, newValue)
 		if !loaded {
 			return true
 		}
@@ -134,12 +134,12 @@ LOAD_OR_NEW_LOOP:
 		for {
 			current := atomic.LoadInt32(value)
 			if current == expungedBucket {
-				b.m.Delete(chunkKey)
+				b.m.Delete(bucketKey)
 				continue LOAD_OR_NEW_LOOP
 			}
 
 			next := current + 1
-			if config.Overflow(partitionKey, chunkKey, next+1) {
+			if config.Overflow(chunkKey, bucketKey, next+1) {
 				return false
 			}
 
@@ -150,16 +150,16 @@ LOAD_OR_NEW_LOOP:
 	}
 }
 
-func (b *buckets) loadOrStore(chunkKey string, newValue *int32) (*int32, bool) {
+func (b *chunk) loadOrStore(bucketKey string, newValue *int32) (*int32, bool) {
 	for {
-		p, loaded := b.m.LoadOrStore(chunkKey, newValue)
+		p, loaded := b.m.LoadOrStore(bucketKey, newValue)
 		if !loaded {
 			return newValue, false
 		}
 
 		value := p.(*int32)
 		if atomic.LoadInt32(value) == expungedBucket {
-			b.m.Delete(chunkKey)
+			b.m.Delete(bucketKey)
 		} else {
 			return value, true
 		}

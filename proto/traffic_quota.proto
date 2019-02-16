@@ -10,8 +10,8 @@ service TrafficQuota {
 }
 
 message TakeRequest {
-    string partition_key = 1;
-    repeated string chunk_keys = 2;
+    string chunk_key = 1;
+    repeated string bucket_keys = 2;
 }
 
 message TakeResponse {

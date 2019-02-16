@@ -25,10 +25,10 @@ func Test_trafficQuotaServer_Take(t *testing.T) {
 		req *proto.TakeRequest
 	}
 	type takeCall struct {
-		partitionKey string
-		chunkKeys    []string
-		allowed      bool
-		err          error
+		chunkKey   string
+		bucketKeys []string
+		allowed    bool
+		err        error
 	}
 	tests := []struct {
 		name     string
@@ -43,9 +43,9 @@ func Test_trafficQuotaServer_Take(t *testing.T) {
 				req: &proto.TakeRequest{},
 			},
 			takeCall: takeCall{
-				partitionKey: "",
-				chunkKeys:    []string{""},
-				allowed:      true,
+				chunkKey:   "",
+				bucketKeys: []string{""},
+				allowed:    true,
 			},
 			want: &proto.TakeResponse{Allowed: true},
 		},
@@ -55,9 +55,9 @@ func Test_trafficQuotaServer_Take(t *testing.T) {
 				req: &proto.TakeRequest{},
 			},
 			takeCall: takeCall{
-				partitionKey: "",
-				chunkKeys:    []string{""},
-				err:          errors.New("error for test"),
+				chunkKey:   "",
+				bucketKeys: []string{""},
+				err:        errors.New("error for test"),
 			},
 			wantErr: status.Error(codes.Internal, "error for test"),
 		},
@@ -71,8 +71,8 @@ func Test_trafficQuotaServer_Take(t *testing.T) {
 
 			tokenBucket := tokenbucket.NewMockTokenBucket(ctrl)
 			tokenBucket.EXPECT().Take(
-				tt.takeCall.partitionKey,
-				tt.takeCall.chunkKeys,
+				tt.takeCall.chunkKey,
+				tt.takeCall.bucketKeys,
 			).Return(tt.takeCall.allowed, tt.takeCall.err)
 
 			s := NewTrafficQuotaServer(logger, tokenBucket)

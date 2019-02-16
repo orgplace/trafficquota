@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var defaultChunkKeys = []string{""}
+var defaultBucketKeys = []string{""}
 
 type trafficQuotaServer struct {
 	logger      *zap.Logger
@@ -29,12 +29,12 @@ func NewTrafficQuotaServer(logger *zap.Logger, tokenBucket tokenbucket.TokenBuck
 }
 
 func (s *trafficQuotaServer) Take(ctx context.Context, req *proto.TakeRequest) (*proto.TakeResponse, error) {
-	chunkKeys := req.ChunkKeys
-	if len(chunkKeys) == 0 {
-		chunkKeys = defaultChunkKeys
+	bucketKeys := req.BucketKeys
+	if len(bucketKeys) == 0 {
+		bucketKeys = defaultBucketKeys
 	}
 
-	ok, err := s.tokenBucket.Take(req.PartitionKey, chunkKeys)
+	ok, err := s.tokenBucket.Take(req.ChunkKey, bucketKeys)
 	if err != nil {
 		s.logger.Error("failed to take token", zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())

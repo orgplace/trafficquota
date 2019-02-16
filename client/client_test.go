@@ -64,8 +64,8 @@ func Test_client_Take(t *testing.T) {
 	t.Parallel()
 
 	type args struct {
-		partitionKey string
-		chunkKeys    []string
+		chunkKey   string
+		bucketKeys []string
 	}
 	type takeCall struct {
 		req *proto.TakeRequest
@@ -82,13 +82,13 @@ func Test_client_Take(t *testing.T) {
 		{
 			name: "ok",
 			args: args{
-				partitionKey: "partition key",
-				chunkKeys:    []string{""},
+				chunkKey:   "chunk key",
+				bucketKeys: []string{""},
 			},
 			takeCall: takeCall{
 				req: &proto.TakeRequest{
-					PartitionKey: "partition key",
-					ChunkKeys:    []string{""},
+					ChunkKey:   "chunk key",
+					BucketKeys: []string{""},
 				},
 				res: &proto.TakeResponse{
 					Allowed: true,
@@ -99,13 +99,13 @@ func Test_client_Take(t *testing.T) {
 		{
 			name: "error",
 			args: args{
-				partitionKey: "partition key",
-				chunkKeys:    []string{""},
+				chunkKey:   "chunk key",
+				bucketKeys: []string{""},
 			},
 			takeCall: takeCall{
 				req: &proto.TakeRequest{
-					PartitionKey: "partition key",
-					ChunkKeys:    []string{""},
+					ChunkKey:   "chunk key",
+					BucketKeys: []string{""},
 				},
 				err: errors.New("error for test"),
 			},
@@ -127,7 +127,7 @@ func Test_client_Take(t *testing.T) {
 				trafficQuota: mockTrafficQuota,
 			}
 
-			got, err := c.Take(tt.args.partitionKey, tt.args.chunkKeys...)
+			got, err := c.Take(tt.args.chunkKey, tt.args.bucketKeys...)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("client.Take() error = %v, wantErr %v", err, tt.wantErr)
 				return

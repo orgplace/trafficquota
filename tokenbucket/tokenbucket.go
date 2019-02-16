@@ -17,13 +17,13 @@ const (
 type Option struct {
 	Interval time.Duration
 
-	Default    BucketOption
-	Partitions map[string]*ChunkOption
+	Default BucketOption
+	Chunks  map[string]*ChunkOption
 }
 
 type ChunkOption struct {
 	Default BucketOption
-	Buckets map[string]*BucketOption
+	Chunk   map[string]*BucketOption
 }
 
 type BucketOption struct {
@@ -41,14 +41,14 @@ type BucketOption struct {
 // Config is a configuration of TokenBucket.
 type Config interface {
 	// Rate returns a number of filled tokens.
-	Rate(partitionKey, chunkKey string) int32
+	Rate(chunkKey, bucketKey string) int32
 	// Overflow returns true when .
-	Overflow(partitionKey, chunkKey string, tokens int32) bool
+	Overflow(chunkKey, bucketKey string, tokens int32) bool
 }
 
 // TokenBucket is an algorithm used to control network traffic.
 // This interface provices goroutine-safe methods.
 type TokenBucket interface {
 	Fill()
-	Take(partitionKey string, chunkKeys []string) (bool, error)
+	Take(chunkKey string, bucketKeys []string) (bool, error)
 }

@@ -36,11 +36,11 @@ func NewFixedConfig(o *Option) Config {
 		defaultSize = o.Default.Size
 	}
 
-	n := len(o.Partitions)
+	n := len(o.Chunks)
 	chunkSize := make(map[string]*fixedChunkSizeConfig, n)
 	minChunkSize := defaultSize
 	chunkRate := make(map[string]*fixedChunkRateConfig, n)
-	for k, v := range o.Partitions {
+	for k, v := range o.Chunks {
 		cs, min := buildFixedChunkSizeConfig(v, o.Default.Banned)
 		chunkSize[k] = cs
 		minChunkSize = minInt32(minChunkSize, min)
@@ -70,9 +70,9 @@ func buildFixedChunkSizeConfig(o *ChunkOption, bannedDefault bool) (*fixedChunkS
 		defultSize = o.Default.Size
 	}
 
-	bucketSize := make(map[string]int32, len(o.Buckets))
+	bucketSize := make(map[string]int32, len(o.Chunk))
 	minSize := defultSize
-	for k, v := range o.Buckets {
+	for k, v := range o.Chunk {
 		s := int32(0)
 		if !v.Banned {
 			s = v.Size
@@ -89,8 +89,8 @@ func buildFixedChunkSizeConfig(o *ChunkOption, bannedDefault bool) (*fixedChunkS
 }
 
 func buildFixedChunkRateConfig(o *ChunkOption, interval time.Duration) *fixedChunkRateConfig {
-	bucketRate := make(map[string]int32, len(o.Buckets))
-	for k, v := range o.Buckets {
+	bucketRate := make(map[string]int32, len(o.Chunk))
+	for k, v := range o.Chunk {
 		bucketRate[k] = toFilled(v.Rate, interval)
 	}
 
@@ -100,12 +100,12 @@ func buildFixedChunkRateConfig(o *ChunkOption, interval time.Duration) *fixedChu
 	}
 }
 
-func (c *fixedConfig) Overflow(partitionKey, chunkKey string, tokens int32) bool {
+func (c *fixedConfig) Overflow(chunkKey, bucketKey string, tokens int32) bool {
 	if tokens <= c.minChunkSize {
 		return false
 	}
 
-	chunkSize, ok := c.chunkSize[partitionKey]
+	chunkSize, ok := c.chunkSize[chunkKey]
 	if !ok {
 		return c.defaultSize < tokens
 	}
@@ -114,20 +114,20 @@ func (c *fixedConfig) Overflow(partitionKey, chunkKey string, tokens int32) bool
 		return false
 	}
 
-	bucketSize, ok := chunkSize.bucketSize[chunkKey]
+	bucketSize, ok := chunkSize.bucketSize[bucketKey]
 	if !ok {
 		return chunkSize.defultSize < tokens
 	}
 	return bucketSize < tokens
 }
 
-func (c *fixedConfig) Rate(partitionKey, chunkKey string) int32 {
-	chunkRate, ok := c.chunkRate[partitionKey]
+func (c *fixedConfig) Rate(chunkKey, bucketKey string) int32 {
+	chunkRate, ok := c.chunkRate[chunkKey]
 	if !ok {
 		return c.defaultRate
 	}
 
-	rate, ok := chunkRate.bucketRate[chunkKey]
+	rate, ok := chunkRate.bucketRate[bucketKey]
 	if !ok {
 		return chunkRate.defultRate
 	}

@@ -48,7 +48,7 @@ func TestInMemoryTokenBucket_Take(t *testing.T) {
 			for _, req := range tt.params.requests {
 				tb.Fill()
 				for i := int32(0); i < req; i++ {
-					ok, _ := tb.Take("partitionKey", []string{"chunkKey"})
+					ok, _ := tb.Take("chunkKey", []string{"bucketKey"})
 					if (seq == tt.params.notConformantAt) == ok {
 						t.Errorf("Unexpected conformant: %d", seq)
 					}
@@ -64,65 +64,65 @@ func TestInMemoryTokenBucket_Take_expunged(t *testing.T) {
 
 	tb := &inMemoryTokenBucket{}
 
-	expungedBuckets := newBuckets()
+	expungedChunk := newChunk()
 	expungedValue := DefaultBucketSize
-	expungedBuckets.expunged = true
-	expungedBuckets.m.Store("chunkKey", expungedValue)
-	tb.m.Store("partitionKey", expungedBuckets)
+	expungedChunk.expunged = true
+	expungedChunk.m.Store("bucketKey", expungedValue)
+	tb.m.Store("chunkKey", expungedChunk)
 
-	ok, _ := tb.Take("partitionKey", []string{"chunkKey"})
+	ok, _ := tb.Take("chunkKey", []string{"bucketKey"})
 	if !ok {
 		t.Error("could not take a token")
 	}
 }
 
-func TestBuckets_fill_expunged(t *testing.T) {
+func TestChunk_fill_expunged(t *testing.T) {
 	t.Parallel()
 
-	buckets := newBuckets()
+	chunk := newChunk()
 
 	expungedValue := int32(expungedBucket)
-	buckets.m.Store("clustringKey", &expungedValue)
+	chunk.m.Store("clustringKey", &expungedValue)
 
-	if !buckets.fill(DefaultConfig, "partitionKey") {
-		t.Error("buckets must be empty")
+	if !chunk.fill(DefaultConfig, "chunkKey") {
+		t.Error("chunk must be empty")
 	}
 }
 
-func TestBuckets_empty_not_empty(t *testing.T) {
+func TestChunk_empty_not_empty(t *testing.T) {
 	t.Parallel()
 
-	buckets := newBuckets()
+	chunk := newChunk()
 
-	buckets.m.Store("clustringKey", new(int32))
+	chunk.m.Store("clustringKey", new(int32))
 
-	if buckets.empty() {
-		t.Error("buckets must not be empty")
+	if chunk.empty() {
+		t.Error("chunk must not be empty")
 	}
 }
 
-func TestBuckets_empty_expunged(t *testing.T) {
+func TestChunk_empty_expunged(t *testing.T) {
 	t.Parallel()
 
-	buckets := newBuckets()
+	chunk := newChunk()
 
 	expungedValue := int32(expungedBucket)
-	buckets.m.Store("clustringKey", &expungedValue)
+	chunk.m.Store("clustringKey", &expungedValue)
 
-	if !buckets.empty() {
-		t.Error("buckets must be empty")
+	if !chunk.empty() {
+		t.Error("chunk must be empty")
 	}
 }
 
-func TestBuckets_take_expunged(t *testing.T) {
+func TestChunk_take_expunged(t *testing.T) {
 	t.Parallel()
 
-	buckets := newBuckets()
+	chunk := newChunk()
 
 	expungedValue := int32(expungedBucket)
-	buckets.m.Store("clustringKey", &expungedValue)
+	chunk.m.Store("clustringKey", &expungedValue)
 
-	if !buckets.take(DefaultConfig, "", "clustringKey") {
+	if !chunk.take(DefaultConfig, "", "clustringKey") {
 		t.Error("token must be taken")
 	}
 }

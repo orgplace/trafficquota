@@ -5,4 +5,4 @@ mkdir -p /home/builder/rpm
 cd /home/builder/rpm
 cp /trafficquota/trafficquotad /trafficquota/trafficquota.spec .
 rpmbuild -bb trafficquota.spec
-mv x86_64/*.rpm /trafficquota/
+sudo mv x86_64/*.rpm /trafficquota/

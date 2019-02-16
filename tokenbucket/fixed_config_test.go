@@ -82,7 +82,7 @@ func Test_fixedConfig_Overflow(t *testing.T) {
 			args: args{
 				chunkKey:  "chunkKey",
 				bucketKey: "bucketKey2",
-				tokens:    1,
+				tokens:    2,
 			},
 		},
 		{
@@ -102,6 +102,21 @@ func Test_fixedConfig_Overflow(t *testing.T) {
 				tokens:    1,
 			},
 			want: false,
+		},
+		{
+			name: "min bucket optimization",
+			option: Option{
+				Default: BucketOption{Size: 1},
+				Chunks: map[string]*ChunkOption{
+					"chunkKey": &ChunkOption{
+						Default: BucketOption{Size: 2},
+					},
+				},
+			},
+			args: args{
+				chunkKey: "chunkKey",
+				tokens:   2,
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -130,23 +145,23 @@ func Test_fixedConfig_Rate(t *testing.T) {
 		{
 			name: "default",
 			option: Option{
-				Default: BucketOption{Rate: onePerInterval},
+				Default: BucketOption{Rate: onePerInterval * 2},
 			},
-			want: 1,
+			want: 2,
 		},
 		{
 			name: "chunk default",
 			option: Option{
 				Chunks: map[string]*ChunkOption{
 					"chunkKey": &ChunkOption{
-						Default: BucketOption{Rate: onePerInterval},
+						Default: BucketOption{Rate: onePerInterval * 2},
 					},
 				},
 			},
 			args: args{
 				chunkKey: "chunkKey",
 			},
-			want: 1,
+			want: 2,
 		},
 		{
 			name: "bucket rate",
@@ -173,5 +188,11 @@ func Test_fixedConfig_Rate(t *testing.T) {
 				t.Errorf("fixedConfig.Rate() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestNewFixedConfig_default(t *testing.T) {
+	if got := NewFixedConfig(&Option{}); got != DefaultConfig {
+		t.Errorf("NewFixedConfig() = %v", got)
 	}
 }

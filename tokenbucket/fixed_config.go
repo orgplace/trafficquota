@@ -18,30 +18,25 @@ type fixedChunkSizeConfig struct {
 	minBucketSize int32
 }
 
+func (cs *fixedChunkSizeConfig) isDefault(def int32) bool {
+	return cs.defaultSize == def && len(cs.bucketSize) == 0
+}
+
 type fixedChunkRateConfig struct {
 	defultRate int32
 	bucketRate map[string]int32
 }
 
-func (o *BucketOption) getSize(def int32) int32 {
-	if o.Banned {
-		return 0
-	}
-	if o.Size == 0 {
-		return def
-	}
-	return o.Size
+func (cs *fixedChunkRateConfig) isDefault(def int32) bool {
+	return cs.defultRate == def && len(cs.bucketRate) == 0
 }
 
 // NewFixedConfig constructs a new configuration.
 // The fixed config is read only after creation.
 func NewFixedConfig(o *Option) Config {
-	interval := o.Interval
-	if interval == 0 {
-		interval = DefaultInterval
-	}
-
+	interval := o.getInterval()
 	defaultSize := o.Default.getSize(DefaultBucketSize)
+	defaultRate := toFilled(o.Default.getRate(DefaultRate), interval)
 
 	n := len(o.Chunks)
 	chunkSize := make(map[string]*fixedChunkSizeConfig, n)
@@ -49,18 +44,28 @@ func NewFixedConfig(o *Option) Config {
 	chunkRate := make(map[string]*fixedChunkRateConfig, n)
 	for k, v := range o.Chunks {
 		cs, min := buildFixedChunkSizeConfig(v, v.Default.getSize(defaultSize))
-		chunkSize[k] = cs
-		minChunkSize = minInt32(minChunkSize, min)
+		if !cs.isDefault(defaultSize) {
+			chunkSize[k] = cs
+			minChunkSize = minInt32(minChunkSize, min)
+		}
 
-		chunkRate[k] = buildFixedChunkRateConfig(v, interval)
+		cr := buildFixedChunkRateConfig(v, interval,
+			toFilled(v.Default.getRate(defaultRate), interval))
+		if !cr.isDefault(defaultRate) {
+			chunkRate[k] = cr
+		}
 	}
 
+	if defaultSize == DefaultBucketSize && len(chunkSize) == 0 &&
+		defaultRate == defaultRatePerInterval && len(chunkRate) == 0 {
+		return DefaultConfig
+	}
 	return &fixedConfig{
 		defaultSize:  defaultSize,
 		chunkSize:    chunkSize,
 		minChunkSize: minChunkSize,
 
-		defaultRate: toFilled(o.Default.Rate, interval),
+		defaultRate: defaultRate,
 		chunkRate:   chunkRate,
 	}
 }
@@ -77,6 +82,10 @@ func buildFixedChunkSizeConfig(o *ChunkOption, defaultSize int32) (*fixedChunkSi
 	minSize := defaultSize
 	for k, v := range o.Chunk {
 		s := v.getSize(defaultSize)
+		if s == defaultSize {
+			continue
+		}
+
 		bucketSize[k] = s
 		minSize = minInt32(minSize, s)
 	}
@@ -88,14 +97,14 @@ func buildFixedChunkSizeConfig(o *ChunkOption, defaultSize int32) (*fixedChunkSi
 	}, minSize
 }
 
-func buildFixedChunkRateConfig(o *ChunkOption, interval time.Duration) *fixedChunkRateConfig {
+func buildFixedChunkRateConfig(o *ChunkOption, interval time.Duration, defaultRate int32) *fixedChunkRateConfig {
 	bucketRate := make(map[string]int32, len(o.Chunk))
 	for k, v := range o.Chunk {
 		bucketRate[k] = toFilled(v.Rate, interval)
 	}
 
 	return &fixedChunkRateConfig{
-		defultRate: toFilled(o.Default.Rate, interval),
+		defultRate: defaultRate,
 		bucketRate: bucketRate,
 	}
 }

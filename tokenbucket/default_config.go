@@ -4,11 +4,15 @@ import "time"
 
 type defaultConfig struct{}
 
-// DefaultConfig is the default configuration.
-var DefaultConfig = defaultConfig{}
+var (
+	// DefaultConfig is the default configuration.
+	DefaultConfig = defaultConfig{}
+
+	defaultRatePerInterval = toFilled(DefaultRate, DefaultInterval)
+)
 
 func (c defaultConfig) Rate(_, _ string) int32 {
-	return toFilled(DefaultRate, DefaultInterval)
+	return defaultRatePerInterval
 }
 
 func (c defaultConfig) Overflow(_, _ string, tokens int32) bool {

@@ -14,30 +14,6 @@ const (
 	DefaultBucketSize = DefaultRate / 5
 )
 
-type Option struct {
-	Interval time.Duration
-
-	Default BucketOption
-	Chunks  map[string]*ChunkOption
-}
-
-type ChunkOption struct {
-	Default BucketOption
-	Chunk   map[string]*BucketOption
-}
-
-type BucketOption struct {
-	// Banned means whether the bucket is banned.
-	// When the value is true,
-	// size will be 0 and any requets for the bucket will be rejected.
-	// Otherwise, the default size is used.
-	Banned bool
-	// Size is size of the bucket.
-	Size int32
-	// Rate is rate of the bucket per second.
-	Rate int32
-}
-
 // Config is a configuration of TokenBucket.
 type Config interface {
 	// Rate returns a number of filled tokens.

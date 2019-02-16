@@ -49,8 +49,6 @@ func Test_parseAddr(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.addr, func(t *testing.T) {
-			t.Parallel()
-
 			gotAddr, gotOptions := parseAddr(tt.addr)
 			if gotAddr != tt.wantAddr {
 				t.Errorf("parseAddr() gotAddr = %v, wantAddr %v", gotAddr, tt.wantAddr)
@@ -66,8 +64,8 @@ func Test_client_Take(t *testing.T) {
 	t.Parallel()
 
 	type args struct {
-		partitionKey   string
-		chunkKeys []string
+		partitionKey string
+		chunkKeys    []string
 	}
 	type takeCall struct {
 		req *proto.TakeRequest
@@ -84,13 +82,13 @@ func Test_client_Take(t *testing.T) {
 		{
 			name: "ok",
 			args: args{
-				partitionKey:   "partition key",
-				chunkKeys: []string{""},
+				partitionKey: "partition key",
+				chunkKeys:    []string{""},
 			},
 			takeCall: takeCall{
 				req: &proto.TakeRequest{
-					PartitionKey:   "partition key",
-					ChunkKeys: []string{""},
+					PartitionKey: "partition key",
+					ChunkKeys:    []string{""},
 				},
 				res: &proto.TakeResponse{
 					Allowed: true,
@@ -101,13 +99,13 @@ func Test_client_Take(t *testing.T) {
 		{
 			name: "error",
 			args: args{
-				partitionKey:   "partition key",
-				chunkKeys: []string{""},
+				partitionKey: "partition key",
+				chunkKeys:    []string{""},
 			},
 			takeCall: takeCall{
 				req: &proto.TakeRequest{
-					PartitionKey:   "partition key",
-					ChunkKeys: []string{""},
+					PartitionKey: "partition key",
+					ChunkKeys:    []string{""},
 				},
 				err: errors.New("error for test"),
 			},
@@ -116,8 +114,6 @@ func Test_client_Take(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
 			ctrl := gomock.NewController(t)
 
 			mockTrafficQuota := proto.NewMockTrafficQuotaClient(ctrl)
@@ -182,8 +178,6 @@ func Test_client_Ping(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
 			ctrl := gomock.NewController(t)
 
 			mockHealth := NewMockHealthClient(ctrl)

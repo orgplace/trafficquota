@@ -42,8 +42,6 @@ func TestInMemoryTokenBucket_Take(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
 			tb := NewInMemoryTokenBucket(DefaultConfig)
 
 			seq := 1

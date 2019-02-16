@@ -25,10 +25,10 @@ func Test_trafficQuotaServer_Take(t *testing.T) {
 		req *proto.TakeRequest
 	}
 	type takeCall struct {
-		partitionKey   string
-		chunkKeys []string
-		allowed        bool
-		err            error
+		partitionKey string
+		chunkKeys    []string
+		allowed      bool
+		err          error
 	}
 	tests := []struct {
 		name     string
@@ -43,9 +43,9 @@ func Test_trafficQuotaServer_Take(t *testing.T) {
 				req: &proto.TakeRequest{},
 			},
 			takeCall: takeCall{
-				partitionKey:   "",
-				chunkKeys: []string{""},
-				allowed:        true,
+				partitionKey: "",
+				chunkKeys:    []string{""},
+				allowed:      true,
 			},
 			want: &proto.TakeResponse{Allowed: true},
 		},
@@ -55,17 +55,15 @@ func Test_trafficQuotaServer_Take(t *testing.T) {
 				req: &proto.TakeRequest{},
 			},
 			takeCall: takeCall{
-				partitionKey:   "",
-				chunkKeys: []string{""},
-				err:            errors.New("error for test"),
+				partitionKey: "",
+				chunkKeys:    []string{""},
+				err:          errors.New("error for test"),
 			},
 			wantErr: status.Error(codes.Internal, "error for test"),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
 			logger := zaptest.NewLogger(t)
 
 			ctrl := gomock.NewController(t)

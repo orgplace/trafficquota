@@ -1,15 +1,50 @@
 language: go
 go:
 - "1.11.x"
-
 services:
 - docker
 
-script:
-- go test -race -coverprofile=coverage.txt -covermode=atomic -parallel 2 ./...
-- docker build -t orgplace/trafficquota .
-- echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-- docker push orgplace/trafficquota
+# Skipping the installation step
+install: true
 
-after_success:
-- bash <(curl -s https://codecov.io/bash)
+script:
+# Generated code must be commited
+- "go generate ./... && git diff --stat --exit-code"
+# Test and output coverage
+- "go test -race -coverprofile=coverage.txt -covermode=atomic -parallel 2 ./..."
+# Build executable
+- "CGO_ENABLED=0 go build -ldflags=\"-s -w\" -o trafficquotad ./cmd/trafficquotad"
+# Archive
+- "[[ -z ${TRAVIS_TAG} ]] || ./scripts/ci_archive.sh \"trafficquota-${TRAVIS_TAG}-x86_64.tar.gz\""
+# Build docker image
+- "docker build -t orgplace/trafficquota:${TRAVIS_TAG:-latest} ."
+# Build RPM package
+- "[[ -z ${TRAVIS_TAG} ]] || ./scripts/ci_rpm_build.sh ${TRAVIS_TAG}"
+
+before_deploy:
+- gem install package_cloud
+
+deploy:
+# Send coverage to codecov
+- provider: script
+  skip_cleanup: true
+  script: "bash <(curl -s https://codecov.io/bash)"
+# Push image to Docker Hub
+- provider: script
+  script: "bash ./scripts/ci_docker_push.sh"
+# Push image to Docker Hub
+- provider: script
+  skip_cleanup: true
+  script: "bash ./scripts/ci_packagecloud.sh"
+  on:
+    tags: true
+# Publish arcive to GitHub Releases
+- provider: releases
+  skip_cleanup: true
+  api_key:
+    secure: cPUqwwemImpCzJw4dEqXQu2oBkMItzTCzjnoS3dzoHSem5xGVjIfZCaV51fBUX9RFNUl3amUx6q7Gis+qwXhLK8kivvhoZb6l+Bh/xqssNMDWwauZnALHfVyvCfOxZ2AJNNtszBulp/KizmK3pia/L+42ZDElmjtwEAncLryUupEE9Y78aYRg2CycwEyjNoscvvvpgrazNFLs/9hM5Yr/ZcyTFG3BxtiQayD7GCWKJp8jSy6euvXQI9RDKRSiWKC7i7fojopryitnDikHnXSIueMRJ0vQQEAG4Om7ZdHZvvs1KMH4GjpRzFcQ68Q60M6J7NrB41fMuBzTiF3Micje/qfpUEqtw34cb/SSGQ/XH5rCIE4E4Atw8lxbDZ2aPhHDPVPF2Z3G5POL2Qn6Ilt1LQa5umDy4QxWsJ3a7hdv1qqTQ2+TsAeggQQqTbHaiMDITt1vXYIrHEKhnTeiuxyFoHIDZOpCuBwkn3suuLVo2681IhQ9SpRhukyifgKI+GbHK0Q5TVNPx/pTaarXyjoyEBwnzxBh9vI7vzoVWa8x/6NeAaE4pwJ6/5PVtX9gt7rb5fBR3kcEw15eD2EVTIOOEMMbTVj+Oofx7Evzd3nQvccPI4O9WKTcXRbkbEAkpd0feDnT2vplD52qsfdwx7pXsBl5GmJJcvONlsUx5gfL1w=
+  file_glob: true
+  file: "*.{tar.gz,rpm}"
+  files:
+  on:
+    tags: true

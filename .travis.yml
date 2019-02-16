@@ -14,13 +14,14 @@ script:
 - "CGO_ENABLED=0 go build -ldflags=\"-s -w\" -o trafficquotad ./cmd/trafficquotad"
 # Archive
 - "[[ -z ${TRAVIS_TAG} ]] || ./scripts/ci_archive.sh \"trafficquota-${TRAVIS_TAG}-x86_64.tar.gz\""
-# Build docker image
+# Build docker image (only tagged)
 - "docker build -t orgplace/trafficquota:${TRAVIS_TAG:-latest} ."
-# Build RPM package
+# Build RPM package (only tagged)
 - "[[ -z ${TRAVIS_TAG} ]] || ./scripts/ci_rpm_build.sh ${TRAVIS_TAG}"
 
 before_deploy:
-- gem install package_cloud
+# Install package_cloud CLI (only tagged)
+- "[[ -z ${TRAVIS_TAG} ]] || gem install package_cloud"
 
 deploy:
 # Send coverage to codecov
@@ -30,13 +31,13 @@ deploy:
 # Push image to Docker Hub
 - provider: script
   script: "bash ./scripts/ci_docker_push.sh"
-# Push image to Docker Hub
+# Push image to Docker Hub (only tagged)
 - provider: script
   skip_cleanup: true
   script: "bash ./scripts/ci_packagecloud.sh"
   on:
     tags: true
-# Publish arcive to GitHub Releases
+# Publish arcive to GitHub Releases (only tagged)
 - provider: releases
   skip_cleanup: true
   api_key:

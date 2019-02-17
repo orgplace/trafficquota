@@ -5,6 +5,8 @@
 [![codecov](https://codecov.io/gh/orgplace/trafficquota/branch/master/graph/badge.svg)](https://codecov.io/gh/orgplace/trafficquota)
 [![GoDoc](https://godoc.org/github.com/orgplace/trafficquota?status.svg)](https://godoc.org/github.com/orgplace/trafficquota)
 [![Docker Pulls](https://img.shields.io/docker/pulls/orgplace/trafficquota.svg?style=flat)](https://hub.docker.com/r/orgplace/trafficquota)
+[![packagecloud deb](https://img.shields.io/badge/deb-packagecloud.io-844fec.svg)](https://packagecloud.io/orgplace/trafficquota?filter=debs)
+[![packagecloud rpm](https://img.shields.io/badge/rpm-packagecloud.io-844fec.svg)](https://packagecloud.io/orgplace/trafficquota?filter=rpms)
 
 [Token bucket](https://en.wikipedia.org/wiki/Token_bucket) server to control web API requests.
 You can check whether the request conforms to defined limits on rate and burstiness by querying this service at the beginning of your API.

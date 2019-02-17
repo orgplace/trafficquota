@@ -35,13 +35,14 @@ deploy:
   skip_cleanup: true
   script: "bash ./scripts/ci_codecov.sh"
   on:
-    condition: true
     all_branches: true
-# Push image to Docker Hub (only master and tagged)
+# Push image to Docker Hub
+- provider: script
+  script: "bash ./scripts/ci_docker_push.sh"
 - provider: script
   script: "bash ./scripts/ci_docker_push.sh"
   on:
-    condition: true
+    tags: true
 # Push image to packagecloud (only tagged)
 - provider: script
   skip_cleanup: true

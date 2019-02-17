@@ -31,7 +31,67 @@ allowed, _ := c.Take("key")
 
 Please see [examples directory](examples) and [godoc](https://godoc.org/github.com/orgplace/trafficquota/client) for more detail.
 
-## Health Checking
+## Installation
+
+### Docker
+
+Pull image from [Docker Hub](https://hub.docker.com/r/orgplace/trafficquota) and run:
+
+```sh
+docker run -it --rm -p3895:3895 orgplace/trafficquota:latest
+```
+
+In your `docker-compose.yml`:
+
+```yml
+services:
+  trafficquota:
+    image: orgplace/trafficquota
+    ports:
+    - "3895:3895"
+```
+
+### DEB/RPM Repository
+
+You can use [DEB/RPM repository (packagecloud)](https://packagecloud.io/orgplace/trafficquota).
+Currently, Ubuntu 18.04, Ubuntu 18.10, Debian 9, Fedora 29 and RHEL 7 are supprted.
+
+To register repository, [follow packagecloud instruction](https://packagecloud.io/orgplace/trafficquota/install) ([deb](https://packagecloud.io/orgplace/trafficquota/install#bash-deb), [rpm](https://packagecloud.io/orgplace/trafficquota/install#bash-rpm)).
+After registration:
+
+```sh
+# Ubuntu/Debian
+apt-get install trafficquota
+# Fedora
+dnf install trafficquota
+# RHEL
+yum install trafficquota
+```
+
+When you use the package, systemd unit file for `trafficquotad` is also installed.
+
+```sh
+# Start
+sudo systemctl start trafficquotad
+# Enable
+sudo systemctl enable trafficquotad
+# Customize
+sudo systemctl edit trafficquotad
+# Log
+journalctl -xeu trafficquotad
+```
+
+### From tarball/Build Source
+
+Download tarball form [GitHub Releases](https://github.com/orgplace/trafficquota/releases) or build from source:
+
+```sh
+go build -o trafficquotad ./cmd/trafficquotad
+```
+
+## Monitoring
+
+### Health Check
 
 `trafficquotad` supports [gRPC Health Checking Protocol](https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
 You can query health of the server using [grpc-health-probe](https://github.com/grpc-ecosystem/grpc-health-probe).

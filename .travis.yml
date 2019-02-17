@@ -17,7 +17,7 @@ script:
 # Build executable
 - "CGO_ENABLED=0 go build -ldflags=\"-s -w\" -o trafficquotad ./cmd/trafficquotad"
 # Archive
-- "[[ -z ${TRAVIS_TAG} ]] || ./scripts/ci_archive.sh \"trafficquota-${TRAVIS_TAG}-x86_64.tar.gz\""
+- "[[ -z ${TRAVIS_TAG} ]] || ./scripts/ci_archive.sh \"trafficquota-${TRAVIS_TAG}-linux-x86_64.tar.gz\""
 # Build docker image (only tagged)
 - "docker build -t orgplace/trafficquota:${TRAVIS_TAG:-latest} ."
 # Build DEB package (only tagged)

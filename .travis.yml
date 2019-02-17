@@ -55,8 +55,6 @@ deploy:
     secure: cPUqwwemImpCzJw4dEqXQu2oBkMItzTCzjnoS3dzoHSem5xGVjIfZCaV51fBUX9RFNUl3amUx6q7Gis+qwXhLK8kivvhoZb6l+Bh/xqssNMDWwauZnALHfVyvCfOxZ2AJNNtszBulp/KizmK3pia/L+42ZDElmjtwEAncLryUupEE9Y78aYRg2CycwEyjNoscvvvpgrazNFLs/9hM5Yr/ZcyTFG3BxtiQayD7GCWKJp8jSy6euvXQI9RDKRSiWKC7i7fojopryitnDikHnXSIueMRJ0vQQEAG4Om7ZdHZvvs1KMH4GjpRzFcQ68Q60M6J7NrB41fMuBzTiF3Micje/qfpUEqtw34cb/SSGQ/XH5rCIE4E4Atw8lxbDZ2aPhHDPVPF2Z3G5POL2Qn6Ilt1LQa5umDy4QxWsJ3a7hdv1qqTQ2+TsAeggQQqTbHaiMDITt1vXYIrHEKhnTeiuxyFoHIDZOpCuBwkn3suuLVo2681IhQ9SpRhukyifgKI+GbHK0Q5TVNPx/pTaarXyjoyEBwnzxBh9vI7vzoVWa8x/6NeAaE4pwJ6/5PVtX9gt7rb5fBR3kcEw15eD2EVTIOOEMMbTVj+Oofx7Evzd3nQvccPI4O9WKTcXRbkbEAkpd0feDnT2vplD52qsfdwx7pXsBl5GmJJcvONlsUx5gfL1w=
   file_glob: true
   file: "*.{tar.gz,deb,rpm}"
-  body: |
-    * [APT/RPM repository (packagecloud)](https://packagecloud.io/orgplace/trafficquota)
-    * [Docker image](https://hub.docker.com/r/orgplace/trafficquota/tags)
+  body: [APT/RPM repository (packagecloud)](https://packagecloud.io/orgplace/trafficquota) and [Docker image](https://hub.docker.com/r/orgplace/trafficquota/tags) are also available.
   on:
     tags: true

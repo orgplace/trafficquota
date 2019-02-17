@@ -6,7 +6,7 @@ services:
 - docker
 
 before_install:
-- "[[ -z ${TRAVIS_TAG} ]] || apt-get install -y fakeroot"
+- "[[ -z ${TRAVIS_TAG} ]] || sudo apt-get install -y fakeroot"
 
 # Skipping the installation step
 install: true

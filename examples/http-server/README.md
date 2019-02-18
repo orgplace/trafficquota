@@ -14,6 +14,6 @@ And open another terminal:
 ab -c100 -n100 http://localhost:8080/
 # Each request is accepted because these are in the rate limit.
 watch -n0.1 ab -c10 -n10 http://localhost:8080/
-# 7〜9 reqqests will exceed the rate limit.
+# 9 (or little less) reqests will exceed the rate limit.
 watch -n0.1 ab -c20 -n20 http://localhost:8080/
 ```

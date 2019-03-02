@@ -41,7 +41,7 @@ func Test_fixedConfig_Overflow(t *testing.T) {
 			option: Option{
 				Default: BucketOption{Size: 1},
 				Chunks: map[string]*ChunkOption{
-					"chunkKey": &ChunkOption{
+					"chunkKey": {
 						Default: BucketOption{Size: 1},
 					},
 				},
@@ -56,7 +56,7 @@ func Test_fixedConfig_Overflow(t *testing.T) {
 			option: Option{
 				Default: BucketOption{Size: 2},
 				Chunks: map[string]*ChunkOption{
-					"chunkKey": &ChunkOption{
+					"chunkKey": {
 						Default: BucketOption{Size: 1},
 					},
 				},
@@ -71,10 +71,10 @@ func Test_fixedConfig_Overflow(t *testing.T) {
 			name: "in bucket",
 			option: Option{
 				Chunks: map[string]*ChunkOption{
-					"chunkKey": &ChunkOption{
+					"chunkKey": {
 						Buckets: map[string]*BucketOption{
-							"bucketKey":  &BucketOption{Size: 1},
-							"bucketKey2": &BucketOption{Size: 2},
+							"bucketKey":  {Size: 1},
+							"bucketKey2": {Size: 2},
 						},
 					},
 				},
@@ -89,9 +89,9 @@ func Test_fixedConfig_Overflow(t *testing.T) {
 			name: "over bucket",
 			option: Option{
 				Chunks: map[string]*ChunkOption{
-					"chunkKey": &ChunkOption{
+					"chunkKey": {
 						Buckets: map[string]*BucketOption{
-							"bucketKey": &BucketOption{Size: 1},
+							"bucketKey": {Size: 1},
 						},
 					},
 				},
@@ -108,7 +108,7 @@ func Test_fixedConfig_Overflow(t *testing.T) {
 			option: Option{
 				Default: BucketOption{Size: 1},
 				Chunks: map[string]*ChunkOption{
-					"chunkKey": &ChunkOption{
+					"chunkKey": {
 						Default: BucketOption{Size: 2},
 					},
 				},
@@ -153,7 +153,7 @@ func Test_fixedConfig_Rate(t *testing.T) {
 			name: "chunk default",
 			option: Option{
 				Chunks: map[string]*ChunkOption{
-					"chunkKey": &ChunkOption{
+					"chunkKey": {
 						Default: BucketOption{Rate: onePerInterval * 2},
 					},
 				},
@@ -167,9 +167,9 @@ func Test_fixedConfig_Rate(t *testing.T) {
 			name: "bucket rate",
 			option: Option{
 				Chunks: map[string]*ChunkOption{
-					"chunkKey": &ChunkOption{
+					"chunkKey": {
 						Buckets: map[string]*BucketOption{
-							"bucketKey": &BucketOption{Rate: onePerInterval},
+							"bucketKey": {Rate: onePerInterval},
 						},
 					},
 				},

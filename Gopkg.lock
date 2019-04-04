@@ -146,7 +146,7 @@
   revision = "4b09977fb92221987e99d190c8f88f2c92727a29"
 
 [[projects]]
-  digest = "1:5b600bdd0f5f37f1cfb03d98b512414d8900263efb7e1c0f22297d4f118fb9ab"
+  digest = "1:0a9f19dcf84d47ea582c0f4db5dbf91f274596a88294198ec15bd0516caac6b2"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -184,8 +184,8 @@
     "tap",
   ]
   pruneopts = "UT"
-  revision = "2fdaae294f38ed9a121193c51ec99fecd3b13eb7"
-  version = "v1.19.0"
+  revision = "3507fb8e1a5ad030303c106fef3a47c9fdad16ad"
+  version = "v1.19.1"
 
 [solve-meta]
   analyzer-name = "dep"

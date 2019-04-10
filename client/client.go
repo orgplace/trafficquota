@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/keepalive"
 
 	"github.com/orgplace/trafficquota/proto"
 	"google.golang.org/grpc"
@@ -39,7 +40,15 @@ type client struct {
 // NewInsecureClient constructs a new client without TLS.
 func NewInsecureClient(addr string) (Client, error) {
 	addr, options := parseAddr(addr)
-	cc, err := grpc.Dial(addr, append(options, grpc.WithInsecure())...)
+	cc, err := grpc.Dial(addr, append(
+		options,
+		grpc.WithKeepaliveParams(keepalive.ClientParameters{
+			Time:                1 * time.Second,
+			Timeout:             5 * time.Second,
+			PermitWithoutStream: true,
+		}),
+		grpc.WithInsecure(),
+	)...)
 	if err != nil {
 		return nil, err
 	}

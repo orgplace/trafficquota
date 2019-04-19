@@ -146,7 +146,7 @@
   revision = "4b09977fb92221987e99d190c8f88f2c92727a29"
 
 [[projects]]
-  digest = "1:0a9f19dcf84d47ea582c0f4db5dbf91f274596a88294198ec15bd0516caac6b2"
+  digest = "1:3872cbb62092d8ae2141bcc0fa35da31afa62bf4b695ec345a81daec6714b093"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -165,6 +165,7 @@
     "health/grpc_health_v1",
     "internal",
     "internal/backoff",
+    "internal/balancerload",
     "internal/binarylog",
     "internal/channelz",
     "internal/envconfig",
@@ -184,8 +185,8 @@
     "tap",
   ]
   pruneopts = "UT"
-  revision = "3507fb8e1a5ad030303c106fef3a47c9fdad16ad"
-  version = "v1.19.1"
+  revision = "25c4f928eaa6d96443009bd842389fb4fa48664e"
+  version = "v1.20.1"
 
 [solve-meta]
   analyzer-name = "dep"

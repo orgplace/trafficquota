@@ -39,7 +39,7 @@ func (h *handler) allowed(r *http.Request) (bool, error) {
 func main() {
 	c, err := tqclient.NewInsecureClient("localhost:3895")
 	if err != nil {
-		panic(c)
+		panic(err)
 	}
 
 	const listen = ":8080"

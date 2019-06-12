@@ -7,6 +7,7 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/orgplace/trafficquota.svg?style=flat)](https://hub.docker.com/r/orgplace/trafficquota)
 [![packagecloud deb](https://img.shields.io/badge/deb-packagecloud.io-844fec.svg)](https://packagecloud.io/orgplace/trafficquota?filter=debs)
 [![packagecloud rpm](https://img.shields.io/badge/rpm-packagecloud.io-844fec.svg)](https://packagecloud.io/orgplace/trafficquota?filter=rpms)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Forgplace%2Ftrafficquota.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Forgplace%2Ftrafficquota?ref=badge_shield)
 
 [Token bucket](https://en.wikipedia.org/wiki/Token_bucket) server to control web API requests.
 You can check whether the request conforms to defined limits on rate and burstiness by querying this service at the beginning of your API.
@@ -101,3 +102,7 @@ You can query health of the server using [grpc-health-probe](https://github.com/
 ```sh
 grpc-health-probe -addr=localhost:3895
 ```
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Forgplace%2Ftrafficquota.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Forgplace%2Ftrafficquota?ref=badge_large)

@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.com/orgplace/trafficquota.svg?branch=master)](https://travis-ci.com/orgplace/trafficquota)
 [![Go Report Card](https://goreportcard.com/badge/github.com/orgplace/trafficquota)](https://goreportcard.com/report/github.com/orgplace/trafficquota)
 [![codecov](https://codecov.io/gh/orgplace/trafficquota/branch/master/graph/badge.svg)](https://codecov.io/gh/orgplace/trafficquota)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Forgplace%2Ftrafficquota.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Forgplace%2Ftrafficquota?ref=badge_shield)
 [![GoDoc](https://godoc.org/github.com/orgplace/trafficquota?status.svg)](https://godoc.org/github.com/orgplace/trafficquota)
 [![Docker Pulls](https://img.shields.io/docker/pulls/orgplace/trafficquota.svg?style=flat)](https://hub.docker.com/r/orgplace/trafficquota)
 [![packagecloud deb](https://img.shields.io/badge/deb-packagecloud.io-844fec.svg)](https://packagecloud.io/orgplace/trafficquota?filter=debs)

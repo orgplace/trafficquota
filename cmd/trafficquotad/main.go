@@ -1,14 +1,13 @@
 package main
 
 import (
+	"errors"
 	"net"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
 	"time"
-
-	"github.com/BurntSushi/toml"
 
 	"github.com/orgplace/trafficquota/config"
 	"github.com/orgplace/trafficquota/server"
@@ -61,39 +60,56 @@ func main() {
 func buildGRPCServer(logger *zap.Logger) (*grpc.Server, error) {
 	s := grpc.NewServer(buildGRPCServerOptions(logger)...)
 
-	configFile, err := loadConfigFile(logger)
+	tokenBucket, err := buildTokenBucket(logger)
 	if err != nil {
 		return nil, err
 	}
 
-	tb := tokenbucket.NewInMemoryTokenBucket(
-		tokenbucket.NewFixedConfig(configFile.TokenBucket.AsOption()),
-	)
-	go func() {
-		c := time.Tick(tokenbucket.DefaultInterval)
-		for range c {
-			tb.Fill()
-		}
-	}()
-
 	grpc_health_v1.RegisterHealthServer(s, health.NewServer())
 	proto.RegisterTrafficQuotaServer(s, server.NewTrafficQuotaServer(
-		logger, tb,
+		logger, tokenBucket,
 	))
 
 	return s, nil
 }
 
-func loadConfigFile(logger *zap.Logger) (*config.FileContent, error) {
-	var result config.FileContent
-	switch _, err := toml.DecodeFile(config.ConfigFilePath, &result); err.(type) {
-	case *os.PathError:
-		logger.Debug("default configuration is used", zap.Error(err))
-		return &result, nil
-	case nil:
-		return &result, nil
-	default:
+func buildTokenBucket(logger *zap.Logger) (tokenbucket.TokenBucket, error) {
+	configFile, err := config.LoadFile(config.ConfigFilePath)
+	if err != nil {
 		return nil, err
+	}
+
+	switch configFile.Strategy {
+	case config.StrategyTimeSlice:
+		opt := configFile.TokenBucket.AsOption(tokenbucket.DefaultTimeSlice)
+
+		tb := tokenbucket.NewTimeSliceTokenBucket(
+			tokenbucket.NewFixedConfig(opt),
+		)
+		go func() {
+			c := time.Tick(opt.Interval)
+			for range c {
+				tb.Fill()
+			}
+		}()
+
+		return tb, nil
+	case config.StrategyTimestamp:
+		opt := configFile.TokenBucket.AsOption(tokenbucket.DefaultGCInterval)
+
+		tb := tokenbucket.NewTimestampTokenBucket(
+			tokenbucket.NewFixedConfig(opt),
+		)
+		go func() {
+			c := time.Tick(opt.Interval)
+			for range c {
+				tb.GC()
+			}
+		}()
+
+		return tb, nil
+	default:
+		return nil, errors.New("unsupported strategy")
 	}
 }
 

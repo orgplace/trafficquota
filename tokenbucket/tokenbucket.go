@@ -6,8 +6,10 @@ import "time"
 //go:generate mockgen -source=${GOFILE} -package=${GOPACKAGE} -write_package_comment=false -destination=mock_${GOFILE}
 
 const (
-	// DefaultInterval is default interval to fill bucket.
-	DefaultInterval = 10 * time.Millisecond
+	// DefaultTimeSlice is default interval to fill bucket.
+	DefaultTimeSlice = 10 * time.Millisecond
+	// DefaultGCInterval is default interval to collect garbege token.
+	DefaultGCInterval = 1 * time.Second
 	// DefaultRate is filled tokens per seccond.
 	DefaultRate int32 = 100
 	// DefaultBucketSize is default size of bucket.
@@ -25,6 +27,17 @@ type Config interface {
 // TokenBucket is an algorithm used to control network traffic.
 // This interface provices goroutine-safe methods.
 type TokenBucket interface {
-	Fill()
 	Take(chunkKey string, bucketKeys []string) (bool, error)
+}
+
+// TimeSliceTokenBucket is an TokenBucket based on time slices.
+type TimeSliceTokenBucket interface {
+	TokenBucket
+	Fill()
+}
+
+// TimestampTokenBucket is an TokenBucket based on timestamp.
+type TimestampTokenBucket interface {
+	TokenBucket
+	GC()
 }

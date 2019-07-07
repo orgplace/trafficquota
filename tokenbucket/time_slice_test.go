@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func TestInMemoryTokenBucket_Take(t *testing.T) {
+func TestTimeSliceTokenBucket_Take(t *testing.T) {
 	t.Parallel()
 
 	filledPerInterval := DefaultRate / int32(time.Second/DefaultInterval)
@@ -42,7 +42,7 @@ func TestInMemoryTokenBucket_Take(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tb := NewInMemoryTokenBucket(DefaultConfig)
+			tb := NewTimeSliceTokenBucket(DefaultConfig)
 
 			seq := 1
 			for _, req := range tt.params.requests {
@@ -59,10 +59,10 @@ func TestInMemoryTokenBucket_Take(t *testing.T) {
 	}
 }
 
-func TestInMemoryTokenBucket_Take_expunged(t *testing.T) {
+func TestTimeSliceTokenBucket_Take_expunged(t *testing.T) {
 	t.Parallel()
 
-	tb := &inMemoryTokenBucket{}
+	tb := &timeSliceTokenBucket{}
 
 	expungedChunk := newChunk()
 	expungedValue := DefaultBucketSize

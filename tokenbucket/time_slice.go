@@ -6,18 +6,18 @@ import (
 	"sync/atomic"
 )
 
-type inMemoryTokenBucket struct {
+type timeSliceTokenBucket struct {
 	config Config
 
 	m sync.Map
 }
 
-// NewInMemoryTokenBucket constructs a in-memory TokenBucket
-func NewInMemoryTokenBucket(config Config) TokenBucket {
-	return &inMemoryTokenBucket{config: config}
+// NewTimeSliceTokenBucket constructs a in-memory TokenBucket
+func NewTimeSliceTokenBucket(config Config) TimeSliceTokenBucket {
+	return &timeSliceTokenBucket{config: config}
 }
 
-func (tb *inMemoryTokenBucket) Fill() {
+func (tb *timeSliceTokenBucket) Fill() {
 	tb.m.Range(func(key, value interface{}) bool {
 		b := value.(*chunk)
 
@@ -34,7 +34,7 @@ func (tb *inMemoryTokenBucket) Fill() {
 	})
 }
 
-func (tb *inMemoryTokenBucket) Take(chunkKey string, bucketKeys []string) (bool, error) {
+func (tb *timeSliceTokenBucket) Take(chunkKey string, bucketKeys []string) (bool, error) {
 	newValue := newChunk()
 	for {
 		value, _ := tb.m.LoadOrStore(chunkKey, newValue)

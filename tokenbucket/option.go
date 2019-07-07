@@ -10,13 +10,6 @@ type Option struct {
 	Chunks  map[string]*ChunkOption
 }
 
-func (o *Option) getInterval() time.Duration {
-	if o.Interval == 0 {
-		return DefaultInterval
-	}
-	return o.Interval
-}
-
 // ChunkOption is an option of chunk
 type ChunkOption struct {
 	Default BucketOption

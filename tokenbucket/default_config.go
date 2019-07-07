@@ -8,7 +8,7 @@ var (
 	// DefaultConfig is the default configuration.
 	DefaultConfig = defaultConfig{}
 
-	defaultRatePerInterval = toFilled(DefaultRate, DefaultInterval)
+	defaultRatePerInterval = toFilled(DefaultRate, DefaultTimeSlice)
 )
 
 func (c defaultConfig) Rate(_, _ string) int32 {

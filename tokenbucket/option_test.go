@@ -2,35 +2,7 @@ package tokenbucket
 
 import (
 	"testing"
-	"time"
 )
-
-func TestOption_getInterval(t *testing.T) {
-	tests := []struct {
-		name string
-		o    Option
-		want time.Duration
-	}{
-		{
-			name: "",
-			o: Option{
-				Interval: time.Second,
-			},
-			want: time.Second,
-		},
-		{
-			name: "default",
-			want: DefaultInterval,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.o.getInterval(); got != tt.want {
-				t.Errorf("Option.getInterval() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
 
 func TestBucketOption_getSize(t *testing.T) {
 	tests := []struct {

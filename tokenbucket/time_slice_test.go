@@ -8,7 +8,7 @@ import (
 func TestTimeSliceTokenBucket_Take(t *testing.T) {
 	t.Parallel()
 
-	filledPerInterval := DefaultRate / int32(time.Second/DefaultInterval)
+	filledPerInterval := DefaultRate / int32(time.Second/DefaultTimeSlice)
 
 	type params struct {
 		requests        []int32

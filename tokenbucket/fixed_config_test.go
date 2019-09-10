@@ -130,7 +130,7 @@ func Test_fixedConfig_Overflow(t *testing.T) {
 }
 
 func Test_fixedConfig_Rate(t *testing.T) {
-	const onePerInterval = int32(time.Second / DefaultInterval)
+	const onePerInterval = int32(time.Second / DefaultTimeSlice)
 
 	type args struct {
 		chunkKey  string

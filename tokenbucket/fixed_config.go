@@ -35,6 +35,10 @@ func (cs *fixedChunkRateConfig) isDefault(def int32) bool {
 // The fixed config is read only after creation.
 func NewFixedConfig(o *Option) Config {
 	interval := o.Interval
+	if interval == 0 {
+		interval = DefaultTimeSlice
+	}
+
 	defaultSize := o.Default.getSize(DefaultBucketSize)
 	defaultRate := toFilled(o.Default.getRate(DefaultRate), interval)
 

@@ -20,5 +20,5 @@ func (c defaultConfig) Overflow(_, _ string, tokens int32) bool {
 }
 
 func toFilled(filledPerSec int32, interval time.Duration) int32 {
-	return filledPerSec / int32(time.Second/interval)
+	return int32(int64(filledPerSec) * int64(interval) / int64(time.Second))
 }

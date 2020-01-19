@@ -74,7 +74,7 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:47314493180bf60badf09c57e1e3dcecb2cd8e5b717b203c52a93dc68b06b58a"
+  digest = "1:69137ca8c666339ba6d3faf4a6f93ae7fb5f6f2c3ae003055a99154486309911"
   name = "go.uber.org/zap"
   packages = [
     ".",
@@ -87,8 +87,19 @@
     "zaptest",
   ]
   pruneopts = "UT"
-  revision = "27376062155ad36be76b0f12cf1572a221d3a48c"
-  version = "v1.10.0"
+  revision = "33e58d4d0120aa28d4df84cd244838c490846c9d"
+  version = "v1.13.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:334b27eac455cb6567ea28cd424230b07b1a64334a2f861a8075ac26ce10af43"
+  name = "golang.org/x/lint"
+  packages = [
+    ".",
+    "golint",
+  ]
+  pruneopts = "UT"
+  revision = "fdd1cda4f05fd1fd86124f0ef9ce31a0b72c8448"
 
 [[projects]]
   branch = "master"
@@ -138,6 +149,19 @@
   pruneopts = "UT"
   revision = "342b2e1fbaa52c93f31447ad2c6abc048c63e475"
   version = "v0.3.2"
+
+[[projects]]
+  branch = "master"
+  digest = "1:375bbce2bbd503937b18f404fe297d6d723ac2387097a0425e3316f20324f491"
+  name = "golang.org/x/tools"
+  packages = [
+    "go/ast/astutil",
+    "go/gcexportdata",
+    "go/internal/gcimporter",
+    "go/types/typeutil",
+  ]
+  pruneopts = "UT"
+  revision = "e919f8675149607535c2bce081bf46579d773e2a"
 
 [[projects]]
   branch = "master"

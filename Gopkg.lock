@@ -42,7 +42,7 @@
   revision = "822fe56949f5d56c9e2f02367c657e0e9b4d27d1"
 
 [[projects]]
-  digest = "1:40da601708c420dbea753eca53d1a696e47c41768e4b2197359b2c6d489b5eb8"
+  digest = "1:124da483bf026705cfa738cc0d6e36f7c7e9dd8d4302062e6893396e6055134e"
   name = "github.com/grpc-ecosystem/go-grpc-middleware"
   packages = [
     ".",
@@ -54,8 +54,8 @@
     "tags/zap",
   ]
   pruneopts = "UT"
-  revision = "c250d6563d4d4c20252cd865923440e829844f4e"
-  version = "v1.0.0"
+  revision = "dd15ed025b6054e5253963e355991f3070d4e593"
+  version = "v1.1.0"
 
 [[projects]]
   digest = "1:a5158647b553c61877aa9ae74f4015000294e47981e6b8b07525edcbb0747c81"

@@ -147,12 +147,15 @@
   revision = "92dd089d5514cecde7a465f807541f83dfd486d5"
 
 [[projects]]
-  digest = "1:66eb0a8f30c52554ea9ecdd3c03cb48c9cd02d85388d21d1b3f7e93f4fd3611d"
+  digest = "1:c7d617d9d5c5577d408d0ab610e5d7b77d1a7378c822c3f7433131d53fcabe33"
   name = "google.golang.org/grpc"
   packages = [
     ".",
+    "attributes",
+    "backoff",
     "balancer",
     "balancer/base",
+    "balancer/grpclb/state",
     "balancer/roundrobin",
     "binarylog/grpc_binarylog_v1",
     "codes",
@@ -168,27 +171,31 @@
     "internal/backoff",
     "internal/balancerload",
     "internal/binarylog",
+    "internal/buffer",
     "internal/channelz",
     "internal/envconfig",
+    "internal/grpclog",
     "internal/grpcrand",
     "internal/grpcsync",
+    "internal/grpcutil",
+    "internal/resolver/dns",
+    "internal/resolver/passthrough",
+    "internal/serviceconfig",
+    "internal/status",
     "internal/syscall",
     "internal/transport",
     "keepalive",
     "metadata",
-    "naming",
     "peer",
     "resolver",
-    "resolver/dns",
-    "resolver/passthrough",
     "serviceconfig",
     "stats",
     "status",
     "tap",
   ]
   pruneopts = "UT"
-  revision = "6eaf6f47437a6b4e2153a190160ef39a92c7eceb"
-  version = "v1.23.0"
+  revision = "1f47ba4663831f2a9c28a62a7de3ff8bc45078f0"
+  version = "v1.30.0"
 
 [solve-meta]
   analyzer-name = "dep"

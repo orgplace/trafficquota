@@ -147,18 +147,20 @@
   revision = "92dd089d5514cecde7a465f807541f83dfd486d5"
 
 [[projects]]
-  digest = "1:66eb0a8f30c52554ea9ecdd3c03cb48c9cd02d85388d21d1b3f7e93f4fd3611d"
+  digest = "1:c21e4c57a35fa1dae5117de718a49e706de410a49f4b485fb68d0d3340ee0501"
   name = "google.golang.org/grpc"
   packages = [
     ".",
+    "attributes",
+    "backoff",
     "balancer",
     "balancer/base",
+    "balancer/grpclb/state",
     "balancer/roundrobin",
     "binarylog/grpc_binarylog_v1",
     "codes",
     "connectivity",
     "credentials",
-    "credentials/internal",
     "encoding",
     "encoding/proto",
     "grpclog",
@@ -168,27 +170,73 @@
     "internal/backoff",
     "internal/balancerload",
     "internal/binarylog",
+    "internal/buffer",
     "internal/channelz",
+    "internal/credentials",
     "internal/envconfig",
+    "internal/grpclog",
     "internal/grpcrand",
     "internal/grpcsync",
+    "internal/grpcutil",
+    "internal/metadata",
+    "internal/resolver",
+    "internal/resolver/dns",
+    "internal/resolver/passthrough",
+    "internal/resolver/unix",
+    "internal/serviceconfig",
+    "internal/status",
     "internal/syscall",
     "internal/transport",
+    "internal/transport/networktype",
     "keepalive",
     "metadata",
-    "naming",
     "peer",
     "resolver",
-    "resolver/dns",
-    "resolver/passthrough",
     "serviceconfig",
     "stats",
     "status",
     "tap",
   ]
   pruneopts = "UT"
-  revision = "6eaf6f47437a6b4e2153a190160ef39a92c7eceb"
-  version = "v1.23.0"
+  revision = "577eb696279ea85069a02c9a4c2defafdab858c5"
+  version = "v1.35.0"
+
+[[projects]]
+  digest = "1:2d3129e8809c41b168b21355c931e8e1de9f6a29b438ee90f42760eadbc7f8c6"
+  name = "google.golang.org/protobuf"
+  packages = [
+    "encoding/prototext",
+    "encoding/protowire",
+    "internal/descfmt",
+    "internal/descopts",
+    "internal/detrand",
+    "internal/encoding/defval",
+    "internal/encoding/messageset",
+    "internal/encoding/tag",
+    "internal/encoding/text",
+    "internal/errors",
+    "internal/fieldsort",
+    "internal/filedesc",
+    "internal/filetype",
+    "internal/flags",
+    "internal/genid",
+    "internal/impl",
+    "internal/mapsort",
+    "internal/pragma",
+    "internal/set",
+    "internal/strs",
+    "internal/version",
+    "proto",
+    "reflect/protoreflect",
+    "reflect/protoregistry",
+    "runtime/protoiface",
+    "runtime/protoimpl",
+    "types/known/durationpb",
+    "types/known/timestamppb",
+  ]
+  pruneopts = "UT"
+  revision = "3f7a61f89bb6813f89d981d1870ed68da0b3c3f1"
+  version = "v1.25.0"
 
 [solve-meta]
   analyzer-name = "dep"

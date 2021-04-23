@@ -42,19 +42,20 @@
   revision = "822fe56949f5d56c9e2f02367c657e0e9b4d27d1"
 
 [[projects]]
-  digest = "1:b24b12276d694787dd36e901fc65a66121c6e65a031de1b2d63111c91251a41f"
+  digest = "1:05b1f2c41da9e94c348713a3f045c69ac31b53678e23e3ae84d0ecc8f8c1c959"
   name = "github.com/grpc-ecosystem/go-grpc-middleware"
   packages = [
     ".",
     "logging",
+    "logging/settable",
     "logging/zap",
     "logging/zap/ctxzap",
     "recovery",
     "tags",
   ]
   pruneopts = "UT"
-  revision = "3c51f7f332123e8be5a157c0802a228ac85bf9db"
-  version = "v1.2.0"
+  revision = "df0f91b29bbbdfc3a686a7a8edbe2b9de2072fdd"
+  version = "v1.3.0"
 
 [[projects]]
   digest = "1:a5158647b553c61877aa9ae74f4015000294e47981e6b8b07525edcbb0747c81"

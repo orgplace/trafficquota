@@ -2,12 +2,15 @@
 
 
 [[projects]]
-  digest = "1:9f3b30d9f8e0d7040f729b82dcbc8f0dead820a133b3147ce355fc451f32d761"
+  digest = "1:d4f8c1a1b025da756db8ede61962af7fda875d973b223937778f311d1e6a8ab6"
   name = "github.com/BurntSushi/toml"
-  packages = ["."]
+  packages = [
+    ".",
+    "internal",
+  ]
   pruneopts = "UT"
-  revision = "3012a1dbe2e4bd1391d42b32f0577cb7bbc7f005"
-  version = "v0.3.1"
+  revision = "642b87ad9aaf6804f7f9a3f475baf9dd362df027"
+  version = "v0.4.0"
 
 [[projects]]
   digest = "1:4882ca4e50712f367a52a467a277dcd8ef877b82acaa5973baea92fe7443f2eb"
